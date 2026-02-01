@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1434;databaseName=mydatabase;encrypt=true;trustServerCertificate=true
+    username: SA
+    password: Quan#1812@2000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 6000
+      repositories:
+        enabled: false

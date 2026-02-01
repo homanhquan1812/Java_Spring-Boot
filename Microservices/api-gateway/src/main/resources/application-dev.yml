@@ -1,0 +1,104 @@
+spring:
+  # ===== DATABASE =====
+  datasource:
+    url: jdbc:sqlserver://localhost:1434;databaseName=mydatabase;encrypt=true;trustServerCertificate=true
+    username: SA
+    password: Quan#1812@2000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+  # ===== REDIS =====
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 6000ms
+      repositories:
+        enabled: false
+
+  # ===== EMAIL (JavaMailSender) =====
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: homanhquan1812@gmail.com
+    password: srwldxzocvqetzgu
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  # ===== RABBITMQ =====
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        concurrency: 3
+        max-concurrency: 10
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 2000ms
+
+  # ===== SPRING CLOUD GATEWAY =====
+  cloud:
+    gateway:
+      routes:
+        # Auth Service
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/**
+
+        # Product Service
+        - id: product-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/product/**
+
+        # Order Service
+        - id: order-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/order/**
+
+
+      # Global CORS configuration
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "https://your-frontend.com"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+# ===== JWT CONFIGURATION =====
+jwt:
+  secret: Z4uT3x9pR2mF8aC7yWqK5nD1vB6sL0hJtP3rX8cE2qY9zG4wM1fV7oU5jN6iT0
+  expiration: 86400000
+
+# ===== EMAIL APP CONFIGURATION =====
+app:
+  email:
+    from: homanhquan1812@gmail.com
+    from-name: Project Simulation

@@ -1,0 +1,6 @@
+logging:
+  level:
+    root: WARN
+    org.homanhquan.auth-service: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
