@@ -2,10 +2,10 @@ package org.homanhquan.productservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.homanhquan.productservice.dto.cart.response.CartResponse;
-import org.homanhquan.productservice.projection.CartItemsProjection;
+import org.homanhquan.productservice.entity.CartItem;
+import org.homanhquan.productservice.projection.CartItemProjection;
 import org.homanhquan.productservice.dto.cartItems.request.CreateCartItemsRequest;
 import org.homanhquan.productservice.dto.cartItems.response.CartItemsResponse;
-import org.homanhquan.productservice.entity.CartItems;
 import org.homanhquan.productservice.exception.ResourceNotFoundException;
 import org.homanhquan.productservice.mapper.CartItemsMapper;
 import org.homanhquan.productservice.mapper.CartMapper;
@@ -35,30 +35,30 @@ public class CartServiceImpl implements CartService {
         cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user"));
 
-        List<CartItemsProjection> cartItemsProjections = cartRepository.findCartWithSpecificItemsById(userId);
+        List<CartItemProjection> cartItemProjections = cartRepository.findCartWithSpecificItemsById(userId);
 
-        BigDecimal totalPrice = cartItemsProjections.stream()
+        BigDecimal totalPrice = cartItemProjections.stream()
                 .map(item -> item.getPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return CartResponse.builder()
-                .items(cartMapper.projectionToDtoList(cartItemsProjections))
+                .items(cartMapper.projectionToDtoList(cartItemProjections))
                 .totalPrice(totalPrice)
                 .build();
     }
 
     @Override
     public CartItemsResponse createCartItems(UUID userId, UUID cartId, CreateCartItemsRequest createCartItemsRequest) {
-        CartItems cartItems = cartItemsMapper.toEntity(createCartItemsRequest);
-        cartItems.setCartId(cartId);
-        return cartItemsMapper.toDto(cartItemsRepository.save(cartItems));
+        CartItem cartItem = cartItemsMapper.toEntity(createCartItemsRequest);
+        cartItem.setCartId(cartId);
+        return cartItemsMapper.toDto(cartItemsRepository.save(cartItem));
     }
 
     @Override
     public void deleteCartItems(UUID userId, UUID cartItemId) {
-        CartItems cartItems = cartItemsRepository.findById(cartItemId)
+        CartItem cartItem = cartItemsRepository.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + cartItemId));
-        cartItemsRepository.delete(cartItems);
+        cartItemsRepository.delete(cartItem);
     }
 }

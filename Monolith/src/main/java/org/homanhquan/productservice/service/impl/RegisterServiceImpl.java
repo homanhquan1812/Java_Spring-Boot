@@ -6,20 +6,20 @@ import org.homanhquan.productservice.dto.register.request.UserRegisterRequest;
 import org.homanhquan.productservice.dto.register.response.UserRegisterResponse;
 import org.homanhquan.productservice.entity.Brand;
 import org.homanhquan.productservice.entity.Cart;
+import org.homanhquan.productservice.entity.User;
 import org.homanhquan.productservice.entity.UserInfo;
-import org.homanhquan.productservice.entity.Users;
 import org.homanhquan.productservice.enums.Role;
 import org.homanhquan.productservice.enums.Status;
 import org.homanhquan.productservice.exception.BadRequestException;
 import org.homanhquan.productservice.exception.ResourceNotFoundException;
 import org.homanhquan.productservice.mapper.UserInfoMapper;
-import org.homanhquan.productservice.mapper.UsersMapper;
+import org.homanhquan.productservice.mapper.UserMapper;
 import org.homanhquan.productservice.repository.BrandRepository;
 import org.homanhquan.productservice.repository.CartRepository;
 import org.homanhquan.productservice.repository.LoginRepository;
 import org.homanhquan.productservice.repository.RegisterRepository;
 import org.homanhquan.productservice.repository.UserInfoRepository;
-import org.homanhquan.productservice.repository.UsersRepository;
+import org.homanhquan.productservice.repository.UserRepository;
 import org.homanhquan.productservice.service.EmailService;
 import org.homanhquan.productservice.service.RegisterService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,12 +38,12 @@ public class RegisterServiceImpl implements RegisterService {
     private final LoginRepository loginRepository;
     private final RegisterRepository registerRepository;
     private final CartRepository cartRepository;
-    private final UsersRepository usersRepository;
+    private final UserRepository userRepository;
     private final UserInfoRepository userInfoRepository;
     private final BrandRepository brandRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserInfoMapper userInfoMapper;
-    private final UsersMapper usersMapper;
+    private final UserMapper userMapper;
     private final EmailService emailService;
 
     @Override
@@ -53,8 +53,8 @@ public class RegisterServiceImpl implements RegisterService {
         validateUserUniqueness(userRegisterRequest);
         Brand brand = getBrandById(userRegisterRequest.brandId());
         UserInfo userInfo = createUserInfo(userRegisterRequest);
-        Users users = createUsers(userInfo, brand);
-        createDefaultCart(users.getId());
+        User user = createUsers(userInfo, brand);
+        createDefaultCart(user.getId());
         sendWelcomeEmail(userRegisterRequest);
 
         log.info("User registered successfully: {}", userRegisterRequest.username());
@@ -85,12 +85,12 @@ public class RegisterServiceImpl implements RegisterService {
         return savedUserInfo;
     }
 
-    private Users createUsers(UserInfo userInfo, Brand brand) {
-        Users users = usersMapper.toUsersFromUserInfoAndBrand(userInfo, brand);
-        Users savedUsers = usersRepository.save(users);
+    private User createUsers(UserInfo userInfo, Brand brand) {
+        User user = userMapper.toUsersFromUserInfoAndBrand(userInfo, brand);
+        User savedUser = userRepository.save(user);
 
         log.info("Users entity saved for user: {}", userInfo.getUsername());
-        return savedUsers;
+        return savedUser;
     }
 
     private void createDefaultCart(UUID userId) {

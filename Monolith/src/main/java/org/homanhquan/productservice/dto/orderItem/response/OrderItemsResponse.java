@@ -1,4 +1,4 @@
-package org.homanhquan.productservice.dto.orderItems.response;
+package org.homanhquan.productservice.dto.orderItem.response;
 
 import java.time.LocalDateTime;
 

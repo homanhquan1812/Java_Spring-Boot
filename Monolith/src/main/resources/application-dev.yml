@@ -48,6 +48,10 @@ spring:
           max-attempts: 3
           initial-interval: 2000
 
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+
 async:
   executor:
     core-pool-size: 5

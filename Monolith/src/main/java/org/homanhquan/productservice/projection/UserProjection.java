@@ -3,7 +3,7 @@ package org.homanhquan.productservice.projection;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public interface UsersProjection {
+public interface UserProjection {
     UUID getId();
     String getStatus();
     String getRole();

@@ -2,7 +2,7 @@ package org.homanhquan.productservice.repository;
 
 import io.lettuce.core.dynamic.annotation.Param;
 import org.homanhquan.productservice.entity.Cart;
-import org.homanhquan.productservice.projection.CartItemsProjection;
+import org.homanhquan.productservice.projection.CartItemProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -22,7 +22,7 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
         LEFT JOIN cart c ON c.id = ci.cart_id
         WHERE c.user_id = :id
         """, nativeQuery = true)
-    List<CartItemsProjection> findCartWithSpecificItemsById(@Param("id") UUID id);
+    List<CartItemProjection> findCartWithSpecificItemsById(@Param("id") UUID id);
 
     Optional<Cart> findByUserId(@Param("id") UUID id);
 }

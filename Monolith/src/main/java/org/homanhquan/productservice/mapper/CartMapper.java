@@ -1,6 +1,6 @@
 package org.homanhquan.productservice.mapper;
 
-import org.homanhquan.productservice.projection.CartItemsProjection;
+import org.homanhquan.productservice.projection.CartItemProjection;
 import org.homanhquan.productservice.dto.cartItems.response.CartItemsResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,5 +15,5 @@ import java.util.List;
 public interface CartMapper {
     // Projection -> DTO List
     @Mapping(target = "id", ignore = true)
-    List<CartItemsResponse> projectionToDtoList(List<CartItemsProjection> cartItemsProjections);
+    List<CartItemsResponse> projectionToDtoList(List<CartItemProjection> cartItemProjections);
 }

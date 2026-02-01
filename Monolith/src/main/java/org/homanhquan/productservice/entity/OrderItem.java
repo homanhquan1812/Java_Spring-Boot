@@ -21,7 +21,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderItems {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @UuidGenerator(style = UuidGenerator.Style.TIME)

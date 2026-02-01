@@ -1,4 +1,4 @@
-package org.homanhquan.productservice.dto.orderItems.request;
+package org.homanhquan.productservice.dto.orderItem.request;
 
 import java.math.BigDecimal;
 import java.util.UUID;

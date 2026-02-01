@@ -22,7 +22,7 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, UUID> {
         ui.password,
         ui.gender
     FROM user_info ui
-    INNER JOIN users u ON u.user_info_id = ui.id
+    INNER JOIN user u ON u.user_info_id = ui.id
     WHERE u.id = :id
     """, nativeQuery = true)
     Optional<UserInfo> findUsersByUserId(@Param("id") UUID id);

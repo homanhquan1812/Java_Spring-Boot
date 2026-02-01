@@ -1,4 +1,4 @@
-package org.homanhquan.productservice.dto.orders.response;
+package org.homanhquan.productservice.dto.order.response;
 
 import lombok.Builder;
 import org.homanhquan.productservice.enums.PaymentMethod;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
-public record OrdersResponse(
+public record OrderResponse(
         UUID id,
         UUID userId,
         BigDecimal totalPrice,

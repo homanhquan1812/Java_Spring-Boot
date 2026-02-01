@@ -20,7 +20,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CartItems {
+public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @UuidGenerator(style = UuidGenerator.Style.TIME)

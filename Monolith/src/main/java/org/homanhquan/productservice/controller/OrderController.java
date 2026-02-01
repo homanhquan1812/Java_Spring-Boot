@@ -2,11 +2,11 @@ package org.homanhquan.productservice.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.homanhquan.productservice.dto.orderItems.response.OrderItemsResponse;
-import org.homanhquan.productservice.dto.orders.request.CreateOrdersRequest;
-import org.homanhquan.productservice.dto.orders.request.UpdateOrderStatusRequest;
-import org.homanhquan.productservice.dto.orders.response.OrdersResponse;
-import org.homanhquan.productservice.service.OrdersService;
+import org.homanhquan.productservice.dto.orderItem.response.OrderItemsResponse;
+import org.homanhquan.productservice.dto.order.request.CreateOrderRequest;
+import org.homanhquan.productservice.dto.order.request.UpdateOrderStatusRequest;
+import org.homanhquan.productservice.dto.order.response.OrderResponse;
+import org.homanhquan.productservice.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,18 +18,18 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/order")
 @RequiredArgsConstructor
-public class OrdersController {
+public class OrderController {
 
-    private final OrdersService ordersService;
+    private final OrderService orderService;
 
     ///////////////////// USER /////////////////////
 
     // [GET] /api/order/my-list
     @GetMapping("/my-list")
-    public ResponseEntity<List<OrdersResponse>> getAllOrders(
+    public ResponseEntity<List<OrderResponse>> getAllOrders(
             @AuthenticationPrincipal(expression = "id") UUID userId
     ) {
-        return ResponseEntity.ok(ordersService.getAllOrders(userId));
+        return ResponseEntity.ok(orderService.getAllOrders(userId));
     }
 
     /*
@@ -51,35 +51,35 @@ public class OrdersController {
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @PathVariable UUID orderId
     ) {
-        return ResponseEntity.ok(ordersService.getSpecificOrder(userId, orderId));
+        return ResponseEntity.ok(orderService.getSpecificOrder(userId, orderId));
     }
 
     // [POST] /api/order/submit
     @PostMapping("/submit")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<OrdersResponse> createOrder(
+    public ResponseEntity<OrderResponse> createOrder(
             @AuthenticationPrincipal(expression = "id") UUID userId,
-            @Valid @RequestBody CreateOrdersRequest createOrdersRequest) {
-        return ResponseEntity.ok(ordersService.createOrder(userId, createOrdersRequest));
+            @Valid @RequestBody CreateOrderRequest createOrderRequest) {
+        return ResponseEntity.ok(orderService.createOrder(userId, createOrderRequest));
     }
 
     ///////////////////// STAFF /////////////////////
 
     // [GET] /api/order/all
     @GetMapping("/all")
-    public ResponseEntity<List<OrdersResponse>> getOrdersFromAllUsers(
+    public ResponseEntity<List<OrderResponse>> getOrdersFromAllUsers(
             @AuthenticationPrincipal(expression = "id") UUID userId
     ) {
-        return ResponseEntity.ok(ordersService.getOrdersFromAllUsers(userId));
+        return ResponseEntity.ok(orderService.getOrdersFromAllUsers(userId));
     }
 
     // [PATCH] /api/order/{orderId}/status
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<OrdersResponse> updateOrderStatus(
+    public ResponseEntity<OrderResponse> updateOrderStatus(
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @PathVariable UUID orderId,
             @Valid @RequestBody UpdateOrderStatusRequest updateOrderStatusRequest) {
-        return ResponseEntity.ok(ordersService.updateOrderStatus(userId, orderId, updateOrderStatusRequest));
+        return ResponseEntity.ok(orderService.updateOrderStatus(userId, orderId, updateOrderStatusRequest));
     }
 }
 

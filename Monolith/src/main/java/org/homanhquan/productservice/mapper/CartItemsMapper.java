@@ -2,7 +2,7 @@ package org.homanhquan.productservice.mapper;
 
 import org.homanhquan.productservice.dto.cartItems.request.CreateCartItemsRequest;
 import org.homanhquan.productservice.dto.cartItems.response.CartItemsResponse;
-import org.homanhquan.productservice.entity.CartItems;
+import org.homanhquan.productservice.entity.CartItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -14,9 +14,9 @@ import org.mapstruct.ReportingPolicy;
 public interface CartItemsMapper {
 
     // Entity -> DTO
-    CartItemsResponse toDto(CartItems cartItems);
+    CartItemsResponse toDto(CartItem cartItem);
 
     // DTO -> Entity
     @Mapping(target = "id", ignore = true)
-    CartItems toEntity(CreateCartItemsRequest createCartItemsRequest);
+    CartItem toEntity(CreateCartItemsRequest createCartItemsRequest);
 }

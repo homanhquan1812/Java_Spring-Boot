@@ -1,4 +1,4 @@
-package org.homanhquan.productservice.dto.orders.request;
+package org.homanhquan.productservice.dto.order.request;
 
 import org.homanhquan.productservice.enums.Status;
 

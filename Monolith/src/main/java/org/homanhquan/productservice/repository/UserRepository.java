@@ -1,8 +1,8 @@
 package org.homanhquan.productservice.repository;
 
 import io.lettuce.core.dynamic.annotation.Param;
-import org.homanhquan.productservice.entity.Users;
-import org.homanhquan.productservice.projection.UsersProjection;
+import org.homanhquan.productservice.entity.User;
+import org.homanhquan.productservice.projection.UserProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,8 +13,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UsersRepository extends JpaRepository<Users, UUID> {
-    // GET /users?...=...&...=...
+public interface UserRepository extends JpaRepository<User, UUID> {
+    // GET /user?...=...&...=...
     @Query(value = """
         SELECT
             u.id,
@@ -30,18 +30,18 @@ public interface UsersRepository extends JpaRepository<Users, UUID> {
             ui.phone,
             ui.gender,
             ui.address
-        FROM users u
+        FROM user u
         LEFT JOIN user_info ui ON u.user_info_id = ui.id
         """,
             countQuery = """
         SELECT COUNT(*)
-        FROM users u
+        FROM user u
         LEFT JOIN user_info ui ON u.user_info_id = ui.id
         """,
             nativeQuery = true)
-    Page<UsersProjection> findAllUsersWithBrandNameAndParams(Pageable pageable);
+    Page<UserProjection> findAllUsersWithBrandNameAndParams(Pageable pageable);
 
-    // GET /users/my-info
+    // GET /user/my-info
     @Query(value = """
         SELECT
             u.created_at,
@@ -53,10 +53,10 @@ public interface UsersRepository extends JpaRepository<Users, UUID> {
             ui.phone,
             ui.gender,
             ui.address
-        FROM users u
+        FROM user u
         LEFT JOIN user_info ui ON u.user_info_id = ui.id
         LEFT JOIN brand b ON b.id = u.brand_id
         WHERE u.id = :id
         """, nativeQuery = true)
-    Optional<UsersProjection> findUserInfoWithBrandNameById(@Param("id") UUID id);
+    Optional<UserProjection> findUserInfoWithBrandNameById(@Param("id") UUID id);
 }

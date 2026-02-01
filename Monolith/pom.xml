@@ -51,6 +51,11 @@
             <artifactId>bucket4j_jdk17-core</artifactId>
             <version>8.16.0</version>
         </dependency>
+        <!-- amqp -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
         <!-- JavaMailSender -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
