@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.homanhquan.productservice.dto.order.response.OrderResponse;
 import org.homanhquan.productservice.service.EmailService;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -68,6 +69,35 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Retryable(
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000, multiplier = 2),
+            retryFor = { MessagingException.class }
+    )
+    @Override
+    public void sendOrderConfirmationEmail(String email, OrderResponse order) {
+        log.info("Sending order confirmation email to {}", email);
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(fromEmail, fromName);
+            helper.setTo(email);
+            helper.setSubject("Order Confirmation - Order #" + order.id());
+            helper.setText(buildOrderEmailContent(order), true);
+
+            mailSender.send(mimeMessage);
+            log.info("Order confirmation email sent to {}", email);
+
+        } catch (MessagingException e) {
+            log.error("Failed to send order email to {}: {}", email, e.getMessage());
+            throw new RuntimeException("Email sending failed", e);
+        } catch (Exception e) {
+            log.error("Unexpected error sending email to {}: {}", email, e.getMessage(), e);
+        }
+    }
+
     private String buildWelcomeEmailContent(String username) {
         return """
                 <!DOCTYPE html>
@@ -100,5 +130,55 @@ public class EmailServiceImpl implements EmailService {
                 </body>
                 </html>
                 """.formatted(username);
+    }
+
+    private String buildOrderEmailContent(OrderResponse order) {
+        return """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                        .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+                        .content { padding: 20px; background-color: #f9f9f9; }
+                        .order-info { background-color: #fff; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0; }
+                        .footer { text-align: center; padding: 10px; font-size: 12px; color: #888; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>Order Confirmation</h1>
+                        </div>
+                        <div class="content">
+                            <h2>Thank you for your order!</h2>
+                            <p>Your order has been successfully placed and is being processed.</p>
+                            
+                            <div class="order-info">
+                                <h3>Order Details:</h3>
+                                <p><strong>Order ID:</strong> %s</p>
+                                <p><strong>Total Amount:</strong> %s VND</p>
+                                <p><strong>Payment Method:</strong> %s</p>
+                                <p><strong>Status:</strong> %s</p>
+                                <p><strong>Order Date:</strong> %s</p>
+                            </div>
+                            
+                            <p>We will notify you once your order is ready for delivery.</p>
+                            <p>Best regards,<br><strong>HMQ Cake Shop</strong></p>
+                        </div>
+                        <div class="footer">
+                            <p>&copy; 2024 HMQ Cake Shop. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(
+                order.id(),
+                order.totalPrice(),
+                order.paymentMethod(),
+                order.status(),
+                order.createdAt()
+        );
     }
 }

@@ -2,11 +2,10 @@ package org.homanhquan.productservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.*;
+import org.hibernate.type.SqlTypes;
 import org.homanhquan.productservice.enums.PaymentMethod;
 import org.homanhquan.productservice.enums.Status;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(generator = "UUID")
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "id", columnDefinition = "UNIQUEIDENTIFIER", updatable = false, nullable = false)
     private UUID id;

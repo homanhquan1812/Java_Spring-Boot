@@ -25,7 +25,7 @@ public interface LoginRepository extends JpaRepository<UserInfo, UUID> {
                 ELSE NULL
             END AS role
         FROM user_info ui
-        LEFT JOIN user u ON u.user_info_id = ui.id
+        LEFT JOIN users u ON u.user_info_id = ui.id
         LEFT JOIN cart c ON c.user_id = u.id
         LEFT JOIN staff s ON s.user_info_id = ui.id
         LEFT JOIN admins a ON a.user_info_id = ui.id
