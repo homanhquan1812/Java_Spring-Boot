@@ -7,10 +7,12 @@ import org.homanhquan.productservice.dto.product.request.CreateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductStatusRequest;
 import org.homanhquan.productservice.dto.product.response.ProductResponse;
+import org.homanhquan.productservice.entity.Brand;
 import org.homanhquan.productservice.entity.Product;
 import org.homanhquan.productservice.exception.ResourceNotFoundException;
 import org.homanhquan.productservice.mapper.ProductMapper;
 import org.homanhquan.productservice.projection.ProductProjection;
+import org.homanhquan.productservice.repository.BrandRepository;
 import org.homanhquan.productservice.repository.ProductRepository;
 import org.homanhquan.productservice.service.ProductService;
 import org.springframework.cache.annotation.CacheEvict;
@@ -26,15 +28,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Annotation/Method definition:
+ * Hibernate manages entities inside a Persistence Context bound to the transaction scope. During a transaction, Hibernate tracks managed entities.
+ * Before commit, it performs dirty checking (detects changed fields). If changes exist, it performs updates/inserts to sync with the database (Flush).
+ * ==================================================
+ * Annotation/Method explanation:
  * - @Service: A bean for the business logic layer. Technically the same as @Component - A generic Spring bean, but it makes your intent clear.
  * - @Transactional: Manages database transactions automatically. By default: @Transactional(propagation = REQUIRED, readOnly = false)
  *   + Uses readOnly = true for GET, mainly in Service  ⇒ Read-only query (faster, no dirty checking, no accidental writes).
  *   + propagation = REQUIRED: Joins existing transaction (multiple methods in the same callstack) or creates new one if none exists.
- *
- *   Hibernate tracks entities in the persistence context during a transaction.
- *   Before commit, it performs dirty checking (detects changed fields). If changes exist, it performs updates/inserts to sync with the database (Flush).
- *
  * - @Cacheable: Caches the method result. If the key exists, the method skips execution. Mainly used for GET.
  * - @CacheEvict: Remove entries from cache. Mainly used for POST, PUT, DELETE.
  * - @CachePut: Overrides the result while keeping the key. Rarely used for PUT because it only updates 1 cache, doesn't clear related caches (lists, pages) → Data inconsistency.
@@ -49,6 +50,14 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final BrandRepository brandRepository;
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "allProducts", key = "'all'")
+    public List<ProductResponse> getAllProducts() {
+        return productMapper.projectionToDtoList(productRepository.findAllProductsWithBrandName());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -72,8 +81,13 @@ public class ProductServiceImpl implements ProductService {
     @CacheEvict(value = "allProducts", allEntries = true)
     public ProductResponse createProduct(UUID userId, CreateProductRequest createProductRequest) {
         Product product = productMapper.toEntity(createProductRequest);
+
+        product.setBrand(findBrand(createProductRequest.brandId()));
         product.setCreatedBy(userId);
         product.setUpdatedBy(userId);
+
+        log.info("Product {} created successfully by {}.", product.getId(), userId);
+
         return productMapper.toDto(productRepository.save(product));
     }
 
@@ -83,8 +97,7 @@ public class ProductServiceImpl implements ProductService {
             @CacheEvict(value = "allProducts", allEntries = true)
     })
     public ProductResponse updateProduct(UUID userId, Long productId, UpdateProductRequest updateProductRequest) {
-        Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+        Product existingProduct = findProduct(productId);
         existingProduct.setUpdatedBy(userId);
         productMapper.updateEntityFromDto(updateProductRequest, existingProduct);
         return productMapper.toDto(productRepository.save(existingProduct));
@@ -96,11 +109,12 @@ public class ProductServiceImpl implements ProductService {
             @CacheEvict(value = "allProducts", allEntries = true)
     })
     public ProductResponse updateProductStatus(UUID userId, Long productId, UpdateProductStatusRequest updateProductStatusRequest) {
-        Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+        Product existingProduct = findProduct(productId);
         productMapper.updateEntityFromDtoForStatus(updateProductStatusRequest, existingProduct);
+
         existingProduct.setDeletedAt(LocalDateTime.now());
         existingProduct.setDeletedBy(userId);
+
         return productMapper.toDto(productRepository.save(existingProduct));
     }
 
@@ -112,10 +126,22 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(UUID userId, Long productId) {
         log.warn("Deleting product: id={}, user={}", productId, userId);
 
-        Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+        Product existingProduct = findProduct(productId);
         productRepository.delete(existingProduct);
 
         log.info("Product deleted: id={}", productId);
+    }
+
+    /**
+     * Helper methods
+     */
+    private Brand findBrand(Long brandId) {
+        return brandRepository.findById(brandId)
+                .orElseThrow(() -> new ResourceNotFoundException("Brand not found with id: " + brandId));
+    }
+
+    private Product findProduct(Long productId){
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
     }
 }

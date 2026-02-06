@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Exception Handling can occur everywhere. If there's an exception, local handler (@ExceptionHandler) in Controller, or global handler (@ControllerAdvice/@RestControllerAdvice) returns error response.
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

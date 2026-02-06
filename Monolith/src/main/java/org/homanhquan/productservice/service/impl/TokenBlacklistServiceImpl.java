@@ -9,13 +9,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.homanhquan.productservice.common.constants.RedisConstants.BLACKLIST_PREFIX;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenBlacklistServiceImpl implements TokenBlacklistService {
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
-    private static final String BLACKLIST_PREFIX = "blacklist:token:";
 
     @Override
     public boolean isBlacklisted(String token) {

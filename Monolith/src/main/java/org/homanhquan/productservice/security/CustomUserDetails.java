@@ -18,45 +18,16 @@ import java.util.UUID;
 public class CustomUserDetails implements UserDetails {
 
     private UUID id;
-    private UUID cartId;
     private String username;
     private String password;
     private String fullName;
     private Role role;
 
+    /**
+     * If you have ROLE (e.g. ADMIN, USER), add prefix "ROLE_".
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Nếu role là "USER", "ADMIN", "STAFF" thì thêm prefix "ROLE_"
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }

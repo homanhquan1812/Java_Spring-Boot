@@ -6,6 +6,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Projections fetch only selected fields instead of full entities,
+ * avoiding unnecessary loading of related entities.
+ */
 public interface ProductProjection {
     Long getId();
     String getName();

@@ -10,8 +10,17 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Why do we use interface for Service?
+ * - Allows multiple implementations.
+ * - Enables testing with mocks.
+ * - Promotes loose coupling (depending on interfaces instead of concrete implementations, making the code easier to change, test, and extend).
+ *   private final OrderServiceImpl orderService -> Tight coupling.
+ *   private final OrderService orderService -> Loose coupling.
+ */
 public interface ProductService {
 
+    List<ProductResponse> getAllProducts();
     PageResponse<ProductResponse> getProductsPage(Pageable pageable);
     ProductResponse getProductById(Long productId);
     ProductResponse createProduct(UUID userId, CreateProductRequest createProductRequest);

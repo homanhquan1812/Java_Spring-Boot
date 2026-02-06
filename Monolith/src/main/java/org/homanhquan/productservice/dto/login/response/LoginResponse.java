@@ -8,7 +8,6 @@ import java.util.UUID;
 @Builder
 public record LoginResponse(
         UUID id,
-        UUID cartId,
         String token,
         String username,
         String fullName,

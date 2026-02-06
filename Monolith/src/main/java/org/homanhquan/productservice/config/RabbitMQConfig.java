@@ -11,7 +11,9 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static org.homanhquan.productservice.common.constants.MessageQueueConstants.*;
+import static org.homanhquan.productservice.common.constants.MessageQueueConstants.ORDER_EXCHANGE;
+import static org.homanhquan.productservice.common.constants.MessageQueueConstants.ORDER_QUEUE;
+import static org.homanhquan.productservice.common.constants.MessageQueueConstants.ORDER_ROUTING_KEY;
 
 @Configuration
 public class RabbitMQConfig {

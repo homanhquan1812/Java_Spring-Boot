@@ -9,8 +9,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 import java.util.Map;
@@ -18,11 +20,40 @@ import java.util.Map;
 import static org.homanhquan.productservice.common.constants.ProductCacheConstants.ALL_PRODUCTS;
 import static org.homanhquan.productservice.common.constants.ProductCacheConstants.PRODUCT_BY_ID;
 
+/**
+ * Annotation explanation:
+ * - @Slf4j: Lombok annotation that auto-generates a logger instance (log) for the class.
+ * - @EnableCaching: Activates Spring's annotation-driven caching mechanism (e.g. @Cacheable, @CachePut, @CacheEvict).
+ * - @Configuration: Marks a class as a source of bean definitions.
+ * - @Bean: Marks a method inside @Configuration class to define and return a Spring bean.
+ * - @Profile("dev"): Marks a bean or configuration class to be active only for specific environment profiles (dev/prod).
+ * ==================================================
+ * Why use Redis over HashMap?
+ * - Previously, HashMap was used to store data temporarily in RAM because it was fast and easy to implement.
+ * - However, this approach is not distributed, making it unsuitable for microservices, and all cached data is lost when the system restarts.
+ * - Redis overcomes these limitations by:
+ *   + Supporting distributed caching.
+ *   + Providing persistence to disk.
+ *   + Enabling automatic expiration through TTL.
+ *   + Offering pub/sub capabilities for message brokering.
+ */
 @Slf4j
 @Configuration
 @EnableCaching
 public class RedisConfig {
 
+    /**
+     * Handles automatic serialization/deserialization and TTL management for cached data.
+     * ==================================================
+     * Method explanation:
+     * - entryTtl(Duration.ofMinutes(15)): Set the DEFAULT time-to-live (TTL) for cache entries to 15 minutes.
+     * - disableCachingNullValues(): Prevents null results from being stored in Redis.
+     * - serializeKeysWith(): Serializes cache keys as plain strings for readability and easy debugging via Redis CLI.
+     * - serializeValuesWith(): Serializes values as JSON with embedded @class type metadata for deserialization.
+     *   Renaming/moving the class will invalidate existing cached data.
+     * - Map<String, RedisCacheConfiguration>: Defines per-cache custom configurations & overrides the default TTL for specific caches.
+     * - return...: Creates a Redis cache manager with default rules and per-cache overrides.
+     */
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
@@ -48,6 +79,27 @@ public class RedisConfig {
                 .build();
     }
 
+    /**
+     * Used for custom Redis operations like token blacklisting, session management, or manual key-value storage.
+     * ==================================================
+     * Method explanation:
+     * - setConnectionFactory(): Provides the Redis connection configuration (host, port, password, pool settings) to the RedisTemplate.
+     * - setKeySerializer(): Stores keys as plain strings (e.g., "blacklist:token:abc123").
+     * - setValueSerializer(): Stores values as plain strings (e.g., "revoked").
+     */
+    @Bean
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new StringRedisSerializer());
+        return template;
+    }
+
+    /**
+     * Test Redis connection. If successful, return response: PONG.
+     * Currently, this feature only runs in "dev" environment.
+     */
     @Bean
     @Profile("dev")
     public CommandLineRunner testRedisConnection(RedisConnectionFactory factory) {

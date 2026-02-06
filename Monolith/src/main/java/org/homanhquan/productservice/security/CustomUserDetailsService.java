@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final LoginRepository loginRepository;
-    // private final CustomUserDetails customUserDetails;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -22,7 +21,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return CustomUserDetails.builder()
                 .id(loginProjection.getId())
-                .cartId(loginProjection.getCartId())
                 .username(loginProjection.getUsername())
                 .password(loginProjection.getPassword())
                 .fullName(loginProjection.getFullName())

@@ -6,7 +6,6 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.homanhquan.productservice.enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,50 +14,41 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.function.Function;
 
+/**
+ * JwtUtil's main functions explanation:
+ * - JwtUtil: Constructor that gets the secret key from application.yml.
+ * - generateToken(): Used by Login Service, generates a token based on information from CustomUserDetails after successful authentication.
+ * - validateToken(): Used by JWT Authentication Filter, validate the token and returns Claims for building Authentication object.
+ * - getRemainingTime(): Used by Token Blacklist Service, calculates time until token expires (in milliseconds) for setting Redis TTL.
+ */
 @Slf4j
 @Component
 public class JwtUtil {
 
     private final SecretKey key;
-    private final long EXPIRATION = 1000 * 60 * 60 * 24; // 24h
+    private final long expiration;
 
-    public JwtUtil(@Value("${jwt.secret}") String secret) {
+    public JwtUtil(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration}") long expiration
+    ) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expiration = expiration;
     }
 
-    // ========================================
-    // TOKEN GENERATION
-    // ========================================
-
-    public String generateToken(CustomUserDetails userDetails) {
+    public String generateToken(CustomUserDetails customUserDetails) {
         Date now = new Date();
 
-        if (userDetails.getRole() == Role.ADMIN || userDetails.getRole() == Role.CHEF) {
-            return Jwts.builder()
-                    .subject(userDetails.getUsername())
-                    .claim("userId", userDetails.getId().toString())
-                    .claim("role", userDetails.getRole().name())
-                    .issuedAt(now)
-                    .expiration(new Date(now.getTime() + EXPIRATION))
-                    .signWith(key)
-                    .compact();
-        }
-
         return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .claim("userId", userDetails.getId().toString())
-                .claim("role", userDetails.getRole().name())
-                .claim("cartId", userDetails.getCartId().toString())
+                .subject(customUserDetails.getUsername())
+                .claim("userId", customUserDetails.getId().toString())
+                .claim("role", customUserDetails.getRole().name())
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + EXPIRATION))
+                .expiration(new Date(now.getTime() + expiration))
                 .signWith(key)
                 .compact();
     }
 
-    /**
-     * Validates token and throws exception if invalid/expired.
-     * Used in Filter to catch exception
-     */
     public Claims validateToken(String token) {
         try {
             return Jwts.parser()
@@ -72,27 +62,6 @@ public class JwtUtil {
             throw new RuntimeException("Invalid JWT", e);
         }
     }
-
-    /**
-     * Gets username and validates token:
-     * getUsernameFromToken -> throws exception if invalid
-     * getUsernameFromTokenSafe -> returns null if invalid
-     */
-    public String getUsernameFromToken(String token) {
-        return validateToken(token).getSubject();
-    }
-
-    public String getUsernameFromTokenSafe(String token) {
-        try {
-            return extractAllClaims(token).getSubject();
-        } catch (JwtException | IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    // ========================================
-    // CORE PARSING - Parse CHỈ 1 LẦN
-    // ========================================
 
     private Claims extractAllClaims(String token) {
         try {
@@ -108,14 +77,6 @@ public class JwtUtil {
         }
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        return claimsResolver.apply(extractAllClaims(token));
-    }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
     public long getRemainingTime(String token) {
         try {
             Date expiration = extractExpiration(token);
@@ -124,5 +85,13 @@ public class JwtUtil {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        return claimsResolver.apply(extractAllClaims(token));
     }
 }

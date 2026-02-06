@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface CartService {
 
-    CartResponse getProductsInCart(UUID userId);
-    CartItemsResponse createCartItems(UUID userId, UUID cartId, CreateCartItemsRequest createCartItemsRequest);
+    CartResponse getCartItems(UUID userId);
+    CartItemsResponse createCartItems(UUID userId, CreateCartItemsRequest createCartItemsRequest);
     void deleteCartItems(UUID userId, UUID cartItemId);
 }

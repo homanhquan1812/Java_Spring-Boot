@@ -1,6 +1,6 @@
 package org.homanhquan.productservice.mapper;
 
-import org.homanhquan.productservice.dto.orderItem.response.OrderItemsResponse;
+import org.homanhquan.productservice.dto.orderItem.response.OrderItemResponse;
 import org.homanhquan.productservice.entity.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,5 +15,5 @@ import java.util.List;
 public interface OrderItemsMapper {
     // Entity -> DTO List
     @Mapping(target = "id", ignore = true)
-    List<OrderItemsResponse> toDtoList(List<OrderItem> orderItems);
+    List<OrderItemResponse> toDtoList(List<OrderItem> orderItems);
 }

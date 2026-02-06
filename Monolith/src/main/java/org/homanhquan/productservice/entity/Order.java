@@ -18,9 +18,9 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Order {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", columnDefinition = "UNIQUEIDENTIFIER", updatable = false, nullable = false)
+    @Setter(AccessLevel.NONE)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)

@@ -28,7 +28,7 @@ public class Brand {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "UNIQUEIDENTIFIER", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     @Setter(AccessLevel.NONE)
     private Long id;
 

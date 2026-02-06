@@ -17,10 +17,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.homanhquan.productservice.common.constants.RateLimitConstants.*;
 
 @Slf4j
 @Component
@@ -28,19 +29,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
-
-    // Cache với giới hạn kích thước
     private final Map<String, BucketEntry> cache = new ConcurrentHashMap<>();
 
-    private static final int CAPACITY = 5;
-    private static final Duration REFILL_DURATION = Duration.ofMinutes(1);
-    private static final int MAX_CACHE_SIZE = 10000; // Giới hạn số IP lưu
-    private static final Duration CACHE_ENTRY_TTL = Duration.ofMinutes(10); // TTL cho mỗi entry
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    @NotNull HttpServletResponse response,
-                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            @NotNull FilterChain filterChain) throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
 

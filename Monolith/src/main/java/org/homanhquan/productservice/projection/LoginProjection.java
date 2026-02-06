@@ -6,7 +6,6 @@ import java.util.UUID;
 
 public interface LoginProjection {
     UUID getId();
-    UUID getCartId();
     String getUsername();
     String getPassword();
     Role getRole();

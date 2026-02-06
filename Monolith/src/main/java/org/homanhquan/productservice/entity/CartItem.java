@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,8 +24,8 @@ import java.util.UUID;
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "id", columnDefinition = "UNIQUEIDENTIFIER", updatable = false, nullable = false)
+    @Setter(AccessLevel.NONE)
     private UUID id;
 
     @Column(name = "cart_id", nullable = false)

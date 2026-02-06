@@ -2,6 +2,7 @@ package org.homanhquan.productservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.homanhquan.productservice.dto.cart.response.CartResponse;
+import org.homanhquan.productservice.entity.Cart;
 import org.homanhquan.productservice.entity.CartItem;
 import org.homanhquan.productservice.projection.CartItemProjection;
 import org.homanhquan.productservice.dto.cartItems.request.CreateCartItemsRequest;
@@ -11,6 +12,7 @@ import org.homanhquan.productservice.mapper.CartItemsMapper;
 import org.homanhquan.productservice.mapper.CartMapper;
 import org.homanhquan.productservice.repository.CartItemsRepository;
 import org.homanhquan.productservice.repository.CartRepository;
+import org.homanhquan.productservice.repository.UserRepository;
 import org.homanhquan.productservice.service.CartService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +33,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional(readOnly = true)
-    public CartResponse getProductsInCart(UUID userId) {
+    public CartResponse getCartItems(UUID userId) {
         cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user"));
 
@@ -49,9 +51,10 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartItemsResponse createCartItems(UUID userId, UUID cartId, CreateCartItemsRequest createCartItemsRequest) {
+    public CartItemsResponse createCartItems(UUID userId, CreateCartItemsRequest createCartItemsRequest) {
+        Cart cart = findCart(userId);
         CartItem cartItem = cartItemsMapper.toEntity(createCartItemsRequest);
-        cartItem.setCartId(cartId);
+        cartItem.setCartId(cart.getId());
         return cartItemsMapper.toDto(cartItemsRepository.save(cartItem));
     }
 
@@ -60,5 +63,13 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = cartItemsRepository.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + cartItemId));
         cartItemsRepository.delete(cartItem);
+    }
+
+    /**
+     * Helper methods
+     */
+    private Cart findCart(UUID userId) {
+        return cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + userId));
     }
 }

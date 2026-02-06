@@ -7,13 +7,8 @@ import org.homanhquan.productservice.dto.login.response.LoginResponse;
 import org.homanhquan.productservice.exception.ResourceNotFoundException;
 import org.homanhquan.productservice.exception.UnauthorizedException;
 import org.homanhquan.productservice.projection.LoginProjection;
-import org.homanhquan.productservice.repository.LoginRepository;
-import org.homanhquan.productservice.security.CustomUserDetails;
-import org.homanhquan.productservice.security.JwtUtil;
 import org.homanhquan.productservice.service.LoginService;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.homanhquan.productservice.service.helper.LoginHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,9 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class LoginServiceImpl implements LoginService {
 
-    private final LoginRepository loginRepository;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil; // JWT
+    private final LoginHelper loginHelper;
 
     /**
      * Authenticates user and generates JWT token with the following steps:
@@ -39,50 +32,9 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        authenticateUser(loginRequest);
-        LoginProjection user = getUserInfo(loginRequest.username());
-        String token = generateToken(user);
-        return buildLoginResponse(user, token);
-    }
-
-    private void authenticateUser(LoginRequest loginRequest) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.username(),
-                            loginRequest.password()
-                    )
-            );
-        } catch (BadCredentialsException e) {
-            log.error("Login failed for user: {}", loginRequest.username());
-            throw new UnauthorizedException("Invalid username or password");
-        }
-    }
-
-    private LoginProjection getUserInfo(String username) {
-        return loginRepository.findByUsernameAndRole(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
-    }
-
-    private String generateToken(LoginProjection user) {
-        return jwtUtil.generateToken(
-                CustomUserDetails.builder()
-                        .id(user.getId())
-                        .username(user.getUsername())
-                        .role(user.getRole())
-                        .cartId(user.getCartId())
-                        .build()
-        );
-    }
-
-    private LoginResponse buildLoginResponse(LoginProjection user, String token) {
-        return LoginResponse.builder()
-                .id(user.getId())
-                .cartId(user.getCartId())
-                .token(token)
-                .username(user.getUsername())
-                .fullName(user.getFullName())
-                .role(user.getRole())
-                .build();
+        loginHelper.authenticateUser(loginRequest);
+        LoginProjection user = loginHelper.getUserInfo(loginRequest.username());
+        String token = loginHelper.generateToken(user);
+        return loginHelper.buildLoginResponse(user, token);
     }
 }
