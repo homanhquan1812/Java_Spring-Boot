@@ -19,16 +19,19 @@ jobs:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
         ports:
-          - 1434:1433                     # Ánh xạ cổng host 1434 → container 1433
-        env:                              # Thiết lập biến môi trường để khởi tạo DB
+          - 1434:1433
+        env:
           ACCEPT_EULA: Y
-          SA_PASSWORD: Quan#1812@2000
-        options: >-                       # Kiểm tra sức khỏe (health check)
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Quan#1812@2000' -Q 'SELECT 1'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-          --health-start-period 30s
+          SA_PASSWORD: "Quan#1812@2000"
+          MSSQL_PID: Developer
+          MSSQL_COLLATION: SQL_Latin1_General_CP1_CI_AS
+        options: >-
+          --name=sqlserver
+          --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Quan#1812@2000' -Q 'SELECT 1' -b -o /dev/null"
+          --health-interval=20s
+          --health-timeout=10s
+          --health-retries=15
+          --health-start-period=80s
 
       # -------------------------------
       # Redis Latest Service
