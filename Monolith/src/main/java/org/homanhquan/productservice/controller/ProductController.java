@@ -66,9 +66,10 @@ import static org.homanhquan.productservice.common.constants.ProductSortConstant
  * - @Deprecated(since = "1.0", forRemoval = true): This method will be removed in the future since version 1.0.
  * ==================================================
  * Difference between PUT vs PATCH:
- * - Not much difference between performance and syntax.
- * - They still need NullValuePropertyMappingStrategy.IGNORE in Mapper to keep old data if no update for some fields.
- * - Since a lot of methods just update partial data, PATCH is more common than PUT.
+ * - PUT replaces the entire resource (full update).
+ * - PATCH updates only specified fields (partial update).
+ * - Performance difference is not significant.
+ * - PATCH is more commonly used since most updates are partial.
  */
 @Tag(name = "Product", description = "Product management APIs")
 @RestController

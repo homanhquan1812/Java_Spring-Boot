@@ -19,11 +19,11 @@ import java.util.Optional;
  *   + JPQL (Java Persistence Query Language): Writes database queries based on Java entities instead of table names, making queries portable across databases and less error-prone.
  *     It naturally supports relationships, lazy/eager loading, caching, and can auto-generate optimized count queries for pagination.
  *   + SQL (using nativeQuery): Uses when complex database-specific features
- *
+ * ==================================================
  * When to use nativeQuery?
  * - Complex database-specific features (window functions, CTEs, JSON operations).
  * - Performance-critical queries requiring specific SQL optimization.
- *
+ * ==================================================
  * Some SQL clauses:
  * - CREATE/DROP DATABASE <dbname>: Create/Drop a database.
  * - CREATE TABLE <tbname>(...): Create a table.

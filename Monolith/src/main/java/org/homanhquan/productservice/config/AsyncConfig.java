@@ -21,7 +21,9 @@ import java.util.concurrent.ThreadPoolExecutor;
  * - There are two main ways to create a thread:
  *   + Extend the Thread class and override the run() method.
  *   + Implement the Runnable interface and pass it to a Thread object.
- *   run() is an abstract method that you must implement in Thread or Runnable.
+ * - Note:
+ *   + start() creates a new thread and calls run() on it.
+ *   + Calling run() directly executes on the current thread.
  * Comparisons between Thread, Runnable, Callable, ExecutorService:
  * - Thread: Represents an actual thread of execution. Not recommended in production due to tight coupling and single inheritance limitation.
  * - Runnable: Represents a task (Unit of work), not a thread. It separates task logic from thread management, and doesn't return a value or throw checked exceptions.
@@ -32,10 +34,12 @@ import java.util.concurrent.ThreadPoolExecutor;
  * ==================================================
  * Key concepts of Thread:
  * - Race Condition: Two or more threads access shared data at the same time, leading to unpredictable results.
+ *   -> Because they overwrite each other's changes.
  * - Deadlock: Two or more threads are waiting for each other’s locks, and none can proceed.
  * - Starvation: A thread never gets CPU time or resources because others dominate them.
  * - Livelock: Threads keep responding to each other’s state but no progress is made (like two people both stepping aside repeatedly).
- * - synchronized: Keyword to ensure only one thread can access a method/block at a time (thread-safe).
+ * - Synchronization: Ensures that only one thread can access a shared resource at a time, preventing data inconsistency in multi-threaded environments.
+ *   synchronized: Keyword to ensure only one thread can access a method/block at a time (thread-safe).
  * - volatile: Keyword ensuring a variable's value is always read from main memory (visibility guarantee).
  * - Lock (ReentrantLock): More flexible than synchronized, supports try-lock and timed lock.
  * - Atomic Classes (AtomicInteger, AtomicBoolean): Lock-free thread-safe operations for single variables, better performance than synchronized for simple counters.

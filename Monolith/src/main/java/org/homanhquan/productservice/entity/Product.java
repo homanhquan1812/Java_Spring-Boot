@@ -53,7 +53,7 @@ import java.util.UUID;
  *   + Requires @AllArgsConstructor to work -> Conflicts with @NoArgsConstructor.
  *   + @Builder encourages immutable-style object creation, which conflicts with JPA entity lifecycle & change tracking.
  *   + Better suited for DTOs, not persisted entities.
- * - @Index: Defines a database index on one or more table columns to improve query performance, especially for search and filtering operations.
+ * - @Index: Defines a database index on one or more table columns to improve query performance, especially for search and filtering operations (WHERE, JOIN, ORDER BY, GROUP BY).
  *   + Index definitions should be managed at the database or migration level (Flyway/Liquibase), not in entities.
  * - @NotBlank, @NotNull, @NotEmpty: Validation annotations.
  *   + Intended for input validation (DTO layer).
@@ -162,6 +162,9 @@ public class Product extends Auditable {
      * There are 2 deletion types:
      * - Soft-delete (CascadeType.PERSIST: Create, CascadeType.MERGE: Update).
      * - Hard-delete: cascade = CascadeType.ALL, orphanRemoval = true.
+     * ==================================================
+     * FetchType.LAZY: Related data is not loaded immediately, only when accessed → saves memory.
+     * FetchType.EAGER: Related data is loaded immediately with the main entity → convenient but may affect performance if relations are large.
      * By default:
      * - @OneToOne & @ManyToOne: FetchType.EAGER -> Loads all related entities immediately, even not necessary -> Better set LAZY.
      * - @OneToMany & @ManyToMany: FetchType.LAZY.

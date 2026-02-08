@@ -36,6 +36,13 @@ import java.util.UUID;
  * - @Transactional: Manages database transactions automatically. By default: @Transactional(propagation = REQUIRED, readOnly = false)
  *   + Uses readOnly = true for GET, mainly in Service  ⇒ Read-only query (faster, no dirty checking, no accidental writes).
  *   + propagation = REQUIRED: Joins existing transaction (multiple methods in the same callstack) or creates new one if none exists.
+ *   Transaction is a set of database operations executed as one unit, which either all succeed or all fail, ensuring data consistency (ACID):
+ *   + Atomicity: Fail one, rollback all.
+ *   + Consistency: A transaction must not break database or business rules.
+ *   + Isolation: Concurrent transactions don’t affect each other.
+ *   + Durability: Once a transaction is committed, the data will not be lost.
+ * - @RequiredArgsConstructor: Automatically injects dependencies for constructor.
+ * - @Slf4j: Provides a logger for logging.
  * - @Cacheable: Caches the method result. If the key exists, the method skips execution. Mainly used for GET.
  * - @CacheEvict: Remove entries from cache. Mainly used for POST, PUT, DELETE.
  * - @CachePut: Overrides the result while keeping the key. Rarely used for PUT because it only updates 1 cache, doesn't clear related caches (lists, pages) → Data inconsistency.
