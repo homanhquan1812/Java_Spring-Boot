@@ -1,6 +1,7 @@
-name: Spring Boot CI (SQL Server + Redis + RabbitMQ)
+name: Spring Boot CI/CD Pipeline with SQL Server, Redis & RabbitMQ
 
 on:
+  # Pipeline sẽ chạy khi có push hoặc pull request vào nhánh main hoặc master
   push:
     branches: [ main, master ]
   pull_request:
@@ -8,91 +9,128 @@ on:
 
 jobs:
   build:
+    # Môi trường thực thi là Ubuntu mới nhất do GitHub cung cấp
     runs-on: ubuntu-latest
 
     services:
       # -------------------------------
-      # SQL Server
+      # SQL Server 2022 Service
       # -------------------------------
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
         ports:
-          - 1434:1433
-        env:
+          - 1434:1433                     # Ánh xạ cổng host 1434 → container 1433
+        env:                              # Thiết lập biến môi trường để khởi tạo DB
           ACCEPT_EULA: Y
-          SA_PASSWORD: ${{ secrets.SQLSERVER_SA_PASSWORD }}
-          MSSQL_MEMORY_LIMIT_MB: 2048
-        options: >-
-          --health-cmd "/bin/bash -c \"/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \\\"$SA_PASSWORD\\\" -Q 'SELECT 1' || exit 1\""
+          SA_PASSWORD: Quan#1812@2000
+        options: >-                       # Kiểm tra sức khỏe (health check)
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Quan#1812@2000' -Q 'SELECT 1'"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 15
-          --health-start-period 90s
-      
+          --health-retries 10
+          --health-start-period 30s
 
       # -------------------------------
-      # Redis
+      # Redis Latest Service
       # -------------------------------
       redis:
-        image: redis:7
+        image: redis:latest               # Sử dụng Redis latest version
         ports:
-          - 6379:6379
-        options: >-
+          - 6379:6379                     # Ánh xạ cổng host 6379 → container 6379
+        options: >-                       # Thiết lập health check cho Redis
           --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
 
       # -------------------------------
-      # RabbitMQ
+      # RabbitMQ 3 Management Service
       # -------------------------------
       rabbitmq:
-        image: rabbitmq:3.12-management
+        image: rabbitmq:3-management      # Sử dụng RabbitMQ 3 với management plugin
         ports:
-          - 5672:5672
-          - 15672:15672
-        options: >-
+          - 5672:5672                     # Cổng AMQP
+          - 15672:15672                   # Cổng Management UI
+        options: >-                       # Thiết lập health check cho RabbitMQ
           --health-cmd "rabbitmq-diagnostics -q ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+          --health-start-period 30s
 
     steps:
+      # -------------------------------
+      # 1. Checkout source code
+      # -------------------------------
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4         # Lấy mã nguồn từ repo về môi trường runner
 
+      # -------------------------------
+      # 2. Setup JDK 17 (Temurin)
+      # -------------------------------
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: temurin
-          cache: maven
+          java-version: 17                # Cài đặt Java 17
+          distribution: temurin           # Sử dụng bản phân phối Temurin
+          cache: maven                    # Kích hoạt cache Maven để build nhanh hơn
 
       # -------------------------------
-      # Inject environment variables
+      # 3. Wait for services to be ready
       # -------------------------------
-      - name: Set env for Spring Boot
+      - name: Wait for SQL Server to be ready
         run: |
-          echo "SPRING_DATASOURCE_URL=jdbc:sqlserver://localhost:1434;databaseName=mydatabase;encrypt=true;trustServerCertificate=true" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_USERNAME=sa" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SQLSERVER_SA_PASSWORD }}" >> $GITHUB_ENV
+          echo "Waiting for SQL Server to be ready..."
+          sleep 15
 
-          echo "SPRING_REDIS_HOST=localhost" >> $GITHUB_ENV
-          echo "SPRING_REDIS_PORT=6379" >> $GITHUB_ENV
+      # -------------------------------
+      # 4. Build project bằng Maven
+      # -------------------------------
+      - name: Build with Maven
+        run: mvn -B clean package --file pom.xml
+        # -B = chế độ batch (không yêu cầu input người dùng)
+        # clean package = build lại toàn bộ project, sinh file JAR
+        env:
+          # Thiết lập biến môi trường để kết nối với services
+          SPRING_DATASOURCE_URL: jdbc:sqlserver://localhost:1434;encrypt=false;trustServerCertificate=true
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD: Quan#1812@2000
+          SPRING_REDIS_HOST: localhost
+          SPRING_REDIS_PORT: 6379
+          SPRING_RABBITMQ_HOST: localhost
+          SPRING_RABBITMQ_PORT: 5672
 
-          echo "SPRING_RABBITMQ_HOST=localhost" >> $GITHUB_ENV
-          echo "SPRING_RABBITMQ_PORT=5672" >> $GITHUB_ENV
-          echo "SPRING_RABBITMQ_USERNAME=guest" >> $GITHUB_ENV
-          echo "SPRING_RABBITMQ_PASSWORD=guest" >> $GITHUB_ENV
+      # -------------------------------
+      # 5. Chạy test tự động
+      # -------------------------------
+      - name: Run tests
+        run: mvn test
+        env:
+          # Thiết lập biến môi trường cho test
+          SPRING_DATASOURCE_URL: jdbc:sqlserver://localhost:1434;encrypt=false;trustServerCertificate=true
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD: Quan#1812@2000
+          SPRING_REDIS_HOST: localhost
+          SPRING_REDIS_PORT: 6379
+          SPRING_RABBITMQ_HOST: localhost
+          SPRING_RABBITMQ_PORT: 5672
 
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
-
-      - name: Build & Test
-        run: mvn -B clean verify
-
+      # -------------------------------
+      # 6. Upload file JAR sau khi build thành công
+      # -------------------------------
       - name: Upload JAR
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: product-service
-          path: target/*.jar
+          name: app                       # Tên artifact trên GitHub
+          path: target/*.jar              # Đường dẫn file JAR đã build
+
+      # -------------------------------
+      # 7. Upload kết quả test (dù pass hay fail)
+      # -------------------------------
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results               # Tên artifact chứa log test
+          path: target/surefire-reports/   # Đường dẫn đến báo cáo test Maven
