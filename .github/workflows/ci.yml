@@ -23,10 +23,10 @@ jobs:
           SA_PASSWORD: ${{ secrets.SQLSERVER_SA_PASSWORD }}
           MSSQL_MEMORY_LIMIT_MB: 2048
         options: >-
-          --health-cmd "/bin/bash -c \"/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \\\"$SA_PASSWORD\\\" -Q 'SELECT 1' || exit 1\""
+          --health-cmd "bash -c 'echo > /dev/tcp/localhost/1433'"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 15
+          --health-retries 20
           --health-start-period 90s
       
       
