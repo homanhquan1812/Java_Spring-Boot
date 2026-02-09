@@ -2,6 +2,7 @@ package org.homanhquan.productservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * I. JUnit 5
@@ -241,6 +242,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 
 @SpringBootTest
+@ActiveProfiles("test")
 class ProductServiceApplicationTests {
 
     @Test
