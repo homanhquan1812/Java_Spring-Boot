@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1434;databaseName=mydatabase
+    username: sa
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      initialization-fail-timeout: 60000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  redis:
+    repositories:
+      enabled: false
+
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+
+  mail:
+    host: localhost
