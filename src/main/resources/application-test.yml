@@ -10,7 +10,7 @@ spring:
     database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
       ddl-auto: none
-
+# Test
   redis:
     repositories:
       enabled: false
