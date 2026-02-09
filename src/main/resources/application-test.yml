@@ -24,3 +24,6 @@ spring:
     host: localhost
 
 # Change
+jwt:
+  secret: test-secret-key-test-secret-key-test-secret
+  expiration: 86400000
