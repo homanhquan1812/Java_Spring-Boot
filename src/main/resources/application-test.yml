@@ -21,3 +21,5 @@ spring:
 
   mail:
     host: localhost
+
+# Change
