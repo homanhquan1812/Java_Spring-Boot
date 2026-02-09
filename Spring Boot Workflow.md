@@ -1,10 +1,3 @@
-Application Startup
-    |
-    | Loads application.properties/application.xml.
-    | Initialize ApplicationContext
-    | Configuration classes: SecurityConfig, RedisConfig, etc.
-    | Hibernate scans Entity classes and maps them to database tables/columns.
-    ↓
 Client: Send HTTP Request (GET/POST/PUT/DELETE) with JSON/XML body.
     ↓
 Security Filter Chain

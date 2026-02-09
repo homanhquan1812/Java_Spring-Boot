@@ -25,7 +25,14 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
- * Hibernate scans Entity classes and maps them to database tables/columns.
+ * At application startup, Hibernate scans @Entity classes and builds schema-level metadata that defines the mapping between Java entities and database tables/columns.
+ * During runtime:
+ * - If a repository method is invoked, Spring Data JPA delegates the call to the EntityManager.
+ *   EntityManager, whose implementation is provided by Hibernate, translates the operation into SQL.
+ * - Hibernate executes the SQL via JDBC, which is responsible for low-level database communication.
+ * - Database rows are mapped back to entity objects and stored in the Persistence Context (first-level cache) in the JVM heap.
+ * - Returned objects are serialized into JSON by Jackson and sent as the HTTP response.
+ * - When the request ends, the EntityManager is closed and the Persistence Context is eventually garbage-collected.
  * ==================================================
  * Annotation explanation:
  * - @Entity: Marks a Java class as a persistent entity, meaning it is mapped to a database table and managed by the ORM framework.
