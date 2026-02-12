@@ -1,4 +1,5 @@
 spring:
+  # Database connection
   datasource:
     url: jdbc:sqlserver://localhost:1434;databaseName=mydatabase;encrypt=true;trustServerCertificate=true
     username: SA
@@ -6,12 +7,23 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-
-    show-sql: false
+      # ddl-auto controls whether Hibernate is allowed to automatically manage database schema (DDL) based on JPA entities.
+      # If none: Uses existing tables only & Required when using Flyway/Liquibase (Best practice).
+      # If validate: Hibernate validates schema against entities.
+      # If update: Hibernate automatically alters tables (Not good for production).
+      ddl-auto: none
+    # show-sql: Controls whether Hibernate prints generated SQL statements to the console
+    show-sql: true
+    # format_sql: Formats SQL to be more readable
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
 
   data:
     redis:
@@ -65,9 +77,10 @@ async:
     allow-core-thread-timeout: true
     await-termination-seconds: 60
 
+# JSON Web Token (JWT)
 jwt:
   secret: Z4uT3x9pR2mF8aC7yWqK5nD1vB6sL0hJtP3rX8cE2qY9zG4wM1fV7oU5jN6iT0
-  expiration: 86400000
+  expiration: 8640000
 
 app:
   email:
@@ -81,3 +94,4 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.SQL: OFF
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.flywaydb.core: INFO

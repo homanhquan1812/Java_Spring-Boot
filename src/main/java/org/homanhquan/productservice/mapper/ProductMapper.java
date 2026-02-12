@@ -50,7 +50,8 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         imports = {
                 Status.class
-        }
+        },
+        builder = @Builder(disableBuilder = true)
 )
 public interface ProductMapper {
     /**

@@ -50,7 +50,7 @@ import java.util.UUID;
  * - allEntries = false: Clear specific keys (Enabled by default). If true, clear entire keys. Mainly used in @CacheEvict.
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class ProductServiceImpl implements ProductService {
@@ -60,14 +60,12 @@ public class ProductServiceImpl implements ProductService {
     private final BrandRepository brandRepository;
 
     @Override
-    @Transactional(readOnly = true)
     @Cacheable(value = "allProducts", key = "'all'")
     public List<ProductResponse> getAllProducts() {
         return productMapper.projectionToDtoList(productRepository.findAllProductsWithBrandName());
     }
 
     @Override
-    @Transactional(readOnly = true)
     public PageResponse<ProductResponse> getProductsPage(Pageable pageable) {
         Page<ProductResponse> page = productRepository
                 .findProductsPageWithBrandName(pageable)
@@ -76,22 +74,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     @Cacheable(value = "productById", key = "#productId")
     public ProductResponse getProductById(Long productId) {
-        ProductProjection productProjection = productRepository.findProductByIdWithBrandName(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
-        return productMapper.projectionToDto(productProjection);
+        return productMapper.projectionToDto(findProductProjectionById(productId));
     }
 
     @Override
     @CacheEvict(value = "allProducts", allEntries = true)
+    @Transactional
     public ProductResponse createProduct(UUID userId, CreateProductRequest createProductRequest) {
         Product product = productMapper.toEntity(createProductRequest);
 
-        product.setBrand(findBrand(createProductRequest.brandId()));
-        product.setCreatedBy(userId);
-        product.setUpdatedBy(userId);
+        product.setBrand(findBrandById(createProductRequest.brandId()));
+        markAsCreated(product, userId);
 
         log.info("Product {} created successfully by {}.", product.getId(), userId);
 
@@ -103,10 +98,11 @@ public class ProductServiceImpl implements ProductService {
             @CacheEvict(value = "productById", key = "#productId"),
             @CacheEvict(value = "allProducts", allEntries = true)
     })
+    @Transactional
     public ProductResponse updateProduct(UUID userId, Long productId, UpdateProductRequest updateProductRequest) {
-        Product existingProduct = findProduct(productId);
-        existingProduct.setUpdatedBy(userId);
+        Product existingProduct = findProductById(productId);
         productMapper.updateEntityFromDto(updateProductRequest, existingProduct);
+        markAsUpdated(existingProduct, userId);
         return productMapper.toDto(productRepository.save(existingProduct));
     }
 
@@ -115,13 +111,11 @@ public class ProductServiceImpl implements ProductService {
             @CacheEvict(value = "productById", key = "#productId"),
             @CacheEvict(value = "allProducts", allEntries = true)
     })
+    @Transactional
     public ProductResponse updateProductStatus(UUID userId, Long productId, UpdateProductStatusRequest updateProductStatusRequest) {
-        Product existingProduct = findProduct(productId);
+        Product existingProduct = findProductById(productId);
         productMapper.updateEntityFromDtoForStatus(updateProductStatusRequest, existingProduct);
-
-        existingProduct.setDeletedAt(LocalDateTime.now());
-        existingProduct.setDeletedBy(userId);
-
+        markAsSoftDeleted(existingProduct, userId);
         return productMapper.toDto(productRepository.save(existingProduct));
     }
 
@@ -130,10 +124,11 @@ public class ProductServiceImpl implements ProductService {
             @CacheEvict(value = "productById", key = "#productId"),
             @CacheEvict(value = "allProducts", allEntries = true)
     })
+    @Transactional
     public void deleteProduct(UUID userId, Long productId) {
         log.warn("Deleting product: id={}, user={}", productId, userId);
 
-        Product existingProduct = findProduct(productId);
+        Product existingProduct = findProductById(productId);
         productRepository.delete(existingProduct);
 
         log.info("Product deleted: id={}", productId);
@@ -142,13 +137,33 @@ public class ProductServiceImpl implements ProductService {
     /**
      * Helper methods
      */
-    private Brand findBrand(Long brandId) {
+    private Brand findBrandById(Long brandId) {
         return brandRepository.findById(brandId)
                 .orElseThrow(() -> new ResourceNotFoundException("Brand not found with id: " + brandId));
     }
 
-    private Product findProduct(Long productId){
+    private Product findProductById(Long productId){
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+    }
+
+    private ProductProjection findProductProjectionById(Long productId) {
+        return productRepository.findProductByIdWithBrandName(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+    }
+
+    private void markAsCreated(Product product, UUID userId) {
+        product.setCreatedAt(LocalDateTime.now());
+        product.setCreatedBy(userId);
+    }
+
+    private void markAsUpdated(Product product, UUID userId) {
+        product.setUpdatedAt(LocalDateTime.now());
+        product.setUpdatedBy(userId);
+    }
+
+    private void markAsSoftDeleted(Product product, UUID userId) {
+        product.setDeletedAt(LocalDateTime.now());
+        product.setDeletedBy(userId);
     }
 }

@@ -32,18 +32,6 @@ import java.util.concurrent.ThreadPoolExecutor;
  * - ExecutorService: Manages threads using a thread pool. Decouples task submission from thread execution. Recommended for production systems.
  * Thread lifecycles: NEW (newly created) → RUNNABLE (ready to run) → BLOCKED/WAITING/TIMED_WAITING (waiting for resources) → TERMINATED (finished).
  * ==================================================
- * Key concepts of Thread:
- * - Race Condition: Two or more threads access shared data at the same time, leading to unpredictable results.
- *   -> Because they overwrite each other's changes.
- * - Deadlock: Two or more threads are waiting for each other’s locks, and none can proceed.
- * - Starvation: A thread never gets CPU time or resources because others dominate them.
- * - Livelock: Threads keep responding to each other’s state but no progress is made (like two people both stepping aside repeatedly).
- * - Synchronization: Ensures that only one thread can access a shared resource at a time, preventing data inconsistency in multi-threaded environments.
- *   synchronized: Keyword to ensure only one thread can access a method/block at a time (thread-safe).
- * - volatile: Keyword ensuring a variable's value is always read from main memory (visibility guarantee).
- * - Lock (ReentrantLock): More flexible than synchronized, supports try-lock and timed lock.
- * - Atomic Classes (AtomicInteger, AtomicBoolean): Lock-free thread-safe operations for single variables, better performance than synchronized for simple counters.
- * ==================================================
  * Concurrency & Parallelism definition:
  * - Concurrency refers to the ability of a program to perform multiple tasks simultaneously or manage multiple tasks by rapidly switching between them.
  *   Ex: [Core 1] -> Task A (switch) Task B (switch) Task A (switch) Task B -> Done (5s).
@@ -117,4 +105,34 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setAwaitTerminationSeconds(awaitTerminationSeconds);
         return executor;
     }
+
+    /**
+     * Other key concepts of Thread:
+     * - Race Condition: Two or more threads access shared data at the same time, leading to unpredictable results.
+     *   -> Because they overwrite each other's changes.
+     * - Deadlock: Two or more threads are waiting for each other’s locks, and none can proceed.
+     * - Starvation: A thread never gets CPU time or resources because others dominate them.
+     * - Livelock: Threads keep responding to each other’s state but no progress is made (like two people both stepping aside repeatedly).
+     * - Synchronization: Ensures that only one thread can access a shared resource at a time, preventing data inconsistency in multi-threaded environments.
+     *   synchronized: Keyword to ensure only one thread can access a method/block at a time (thread-safe).
+     * - volatile: Keyword ensuring a variable's value is always read from main memory (visibility guarantee).
+     * - Lock (ReentrantLock): More flexible than synchronized, supports try-lock and timed lock.
+     * - Atomic Classes (AtomicInteger, AtomicBoolean): Lock-free thread-safe operations for single variables, better performance than synchronized for simple counters.
+     * ==================================================
+     * Java Memory Model (JMM): Defines how threads interact through memory and what behaviors are allowed in concurrent execution.
+     * Key concepts:
+     * - Visibility: Whether changes made by one thread are visible to others.
+     *   -> One thread updates a flog to stop another thread, but the running thread may never see the update.
+     * - Atomicity: Whether an operation is atomic (Performed as a single operation).
+     *   + Read/Write: Atomic (1 step).
+     *   + count++ (Read/Modify/Write): Not atomic (3 steps).
+     * - Ordering: Whether instructions can be reordered by JVM or CPU to improve performance.
+     *   ->
+     * - Happens-Before: Defines guarantees about visibility and ordering between operations.
+     *   If A happens before B, then:
+     *   + All effects of A are visible to B.
+     *   + A cannot be reordered after B.
+     * - Stack (Local variables, function calls, or method parameters): One per thread -> Thread-safe & Last-In-First-Out (LIFO).
+     * - Heap (Objects, or instance/static fields): Shared across threads -> Requires JMM guarantees for correctness.
+     */
 }

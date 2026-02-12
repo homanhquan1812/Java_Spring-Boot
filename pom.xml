@@ -73,9 +73,7 @@
             <artifactId>spring-retry</artifactId>
             <version>2.0.12</version>
         </dependency>
-        <!-- Validation
-        Provides a standard way to validate incoming data using predefined constraints.
-        -->
+        <!-- Validation: Provides a standard way to validate incoming data using predefined constraints -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -116,20 +114,11 @@
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
-        <!-- Lombok
-        Reduces boilerplate code by auto-generating common methods
-        like getters, setters, constructors, and builders through annotations at compile time.
-        -->
+        <!-- Lombok: Reduces boilerplate code by auto-generating common methods (e.g. getters, setters) through annotations at compile time. -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-        <!-- ULID -->
-        <dependency>
-            <groupId>com.github.f4b6a3</groupId>
-            <artifactId>ulid-creator</artifactId>
-            <version>5.2.3</version>
         </dependency>
         <!-- UUID v7 -->
         <dependency>
@@ -144,8 +133,12 @@
         </dependency>
         <!-- Flyway -->
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <artifactId>flyway-sqlserver</artifactId>
             <version>11.20.2</version>
         </dependency>
         <dependency>
