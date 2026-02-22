@@ -7,6 +7,11 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 /**
+ * Spring Boot uses Jackson to convert data between Java objects and JSON in controllers. Specifically:
+ * - Serialization: Java object → JSON.
+ * - Deserialization: JSON → Java object.
+ * DTO (Data Transfer Object): A simple object used to carry data from one layer to another.
+ * ==================================================
  * Annotation explanation:
  * - @DecimalMin(value = "0.0", inclusive = false): Validate that a numeric value is greater than or equal to a specified minimum decimal value:
  *   + If inclusive = false, numbers like 0.00, 0.0000 or less than 0 are not allowed.

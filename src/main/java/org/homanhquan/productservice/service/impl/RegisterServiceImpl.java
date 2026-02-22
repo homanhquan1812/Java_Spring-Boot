@@ -7,8 +7,10 @@ import org.homanhquan.productservice.dto.register.response.UserRegisterResponse;
 import org.homanhquan.productservice.entity.Brand;
 import org.homanhquan.productservice.entity.User;
 import org.homanhquan.productservice.entity.UserInfo;
+import org.homanhquan.productservice.event.register.UserRegisteredEvent;
+import org.homanhquan.productservice.listener.register.UserRegisteredEventListener;
 import org.homanhquan.productservice.service.RegisterService;
-import org.homanhquan.productservice.service.helper.RegisterHelper;
+import org.homanhquan.productservice.service.helper.register.RegisterHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,19 +21,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class RegisterServiceImpl implements RegisterService {
 
     private final RegisterHelper registerHelper;
+    private final UserRegisteredEventListener eventListener;
 
     @Override
-    public UserRegisterResponse userRegister(UserRegisterRequest userRegisterRequest) {
-        log.info("Starting registration for user: {}", userRegisterRequest.username());
+    public UserRegisterResponse userRegister(UserRegisterRequest request) {
+        log.info("Starting registration for user: {}", request.username());
 
-        registerHelper.validateUserUniqueness(userRegisterRequest);
-        Brand brand = registerHelper.getBrandById(userRegisterRequest.brandId());
-        UserInfo userInfo = registerHelper.createUserInfo(userRegisterRequest);
+        registerHelper.validateUserUniqueness(request);
+
+        Brand brand = registerHelper.getBrandById(request.brandId());
+        UserInfo userInfo = registerHelper.createUserInfo(request);
         User user = registerHelper.createUsers(userInfo, brand);
         registerHelper.createDefaultCart(user.getId());
-        registerHelper.sendWelcomeEmail(userRegisterRequest);
 
-        log.info("User registered successfully: {}", userRegisterRequest.username());
+        eventListener.onUserRegistered(
+                new UserRegisteredEvent(request.email(), request.username())
+        );
+
+        log.info("User registered successfully: {}", request.username());
 
         return registerHelper.buildRegisterResponse(userInfo, brand);
     }

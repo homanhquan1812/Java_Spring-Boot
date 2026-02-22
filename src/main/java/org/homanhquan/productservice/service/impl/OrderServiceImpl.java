@@ -16,7 +16,7 @@ import org.homanhquan.productservice.mapper.OrderMapper;
 import org.homanhquan.productservice.repository.OrderItemRepository;
 import org.homanhquan.productservice.repository.OrderRepository;
 import org.homanhquan.productservice.service.OrderService;
-import org.homanhquan.productservice.service.helper.OrderCreationHelper;
+import org.homanhquan.productservice.service.helper.order.OrderCreationHelper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

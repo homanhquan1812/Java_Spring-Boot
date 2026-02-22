@@ -7,14 +7,12 @@ import org.homanhquan.productservice.dto.product.request.CreateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductStatusRequest;
 import org.homanhquan.productservice.dto.product.response.ProductResponse;
-import org.homanhquan.productservice.entity.Brand;
 import org.homanhquan.productservice.entity.Product;
-import org.homanhquan.productservice.exception.ResourceNotFoundException;
+import org.homanhquan.productservice.enums.Status;
 import org.homanhquan.productservice.mapper.ProductMapper;
-import org.homanhquan.productservice.projection.ProductProjection;
-import org.homanhquan.productservice.repository.BrandRepository;
 import org.homanhquan.productservice.repository.ProductRepository;
 import org.homanhquan.productservice.service.ProductService;
+import org.homanhquan.productservice.service.helper.product.ProductServiceImplHelper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -23,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,68 +54,121 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final BrandRepository brandRepository;
+    private final ProductServiceImplHelper orderHelper;
 
+    /**
+     * Retrieves all products with their brand names.
+     * @return List of ProductResponse.
+     */
     @Override
     @Cacheable(value = "allProducts", key = "'all'")
     public List<ProductResponse> getAllProducts() {
-        return productMapper.projectionToDtoList(productRepository.findAllProductsWithBrandName());
+        return productMapper.projectionToDtoList(
+                productRepository.findAllProductsWithBrandName()
+        );
     }
 
+    /**
+     * Retrieves a paginated list of products with their brand names.
+     * @param pageable pagination and sorting parameters.
+     * @return PageResponse of ProductResponse.
+     */
     @Override
     public PageResponse<ProductResponse> getProductsPage(Pageable pageable) {
         Page<ProductResponse> page = productRepository
                 .findProductsPageWithBrandName(pageable)
                 .map(productMapper::projectionToDto);
+
         return PageResponse.from(page);
     }
 
+    /**
+     * Retrieves a product with its brand name by ID.
+     */
     @Override
     @Cacheable(value = "productById", key = "#productId")
     public ProductResponse getProductById(Long productId) {
-        return productMapper.projectionToDto(findProductProjectionById(productId));
+        return productMapper.projectionToDto(
+                orderHelper.findProductProjectionById(productId)
+        );
     }
 
+    /**
+     * Creates a new product.
+     */
     @Override
     @CacheEvict(value = "allProducts", allEntries = true)
     @Transactional
-    public ProductResponse createProduct(UUID userId, CreateProductRequest createProductRequest) {
-        Product product = productMapper.toEntity(createProductRequest);
+    public ProductResponse createProduct(UUID userId, CreateProductRequest request) {
+        Product product = productMapper.toEntity(request);
 
-        product.setBrand(findBrandById(createProductRequest.brandId()));
-        markAsCreated(product, userId);
+        product.setStatus(Status.ACTIVE);
+        product.setBrand(orderHelper.findBrandById(request.brandId()));
 
-        log.info("Product {} created successfully by {}.", product.getId(), userId);
+        Product savedProduct = productRepository.save(product);
 
-        return productMapper.toDto(productRepository.save(product));
+        log.info("Product {} created successfully by {}.",
+                savedProduct.getId(),
+                userId
+        );
+
+        return productMapper.toDto(savedProduct);
     }
 
+    /**
+     * Updates an existing product.
+     */
     @Override
     @Caching(evict = {
             @CacheEvict(value = "productById", key = "#productId"),
             @CacheEvict(value = "allProducts", allEntries = true)
     })
     @Transactional
-    public ProductResponse updateProduct(UUID userId, Long productId, UpdateProductRequest updateProductRequest) {
-        Product existingProduct = findProductById(productId);
-        productMapper.updateEntityFromDto(updateProductRequest, existingProduct);
-        markAsUpdated(existingProduct, userId);
-        return productMapper.toDto(productRepository.save(existingProduct));
+    public ProductResponse updateProduct(UUID userId, Long productId, UpdateProductRequest request) {
+        Product existingProduct = orderHelper.findProductById(productId);
+
+        productMapper.updateEntityFromDto(request, existingProduct);
+
+        Product updatedProduct = productRepository.save(existingProduct);
+
+        log.info("Product {} updated successfully by {}.",
+                updatedProduct.getId(),
+                userId
+        );
+
+        return productMapper.toDto(updatedProduct);
     }
 
+    /**
+     * Soft-deletes an existing product by updating its status.
+     */
     @Override
     @Caching(evict = {
             @CacheEvict(value = "productById", key = "#productId"),
             @CacheEvict(value = "allProducts", allEntries = true)
     })
     @Transactional
-    public ProductResponse updateProductStatus(UUID userId, Long productId, UpdateProductStatusRequest updateProductStatusRequest) {
-        Product existingProduct = findProductById(productId);
-        productMapper.updateEntityFromDtoForStatus(updateProductStatusRequest, existingProduct);
-        markAsSoftDeleted(existingProduct, userId);
-        return productMapper.toDto(productRepository.save(existingProduct));
+    public ProductResponse updateProductStatus(UUID userId, Long productId, UpdateProductStatusRequest request) {
+        Product existingProduct = orderHelper.findProductById(productId);
+
+        productMapper.updateStatusFromDto(request, existingProduct);
+
+        existingProduct.softDelete(userId);
+
+        Product savedProduct = productRepository.save(existingProduct);
+
+        log.info("Product's status {} updated successfully by {}. Status: {}",
+                savedProduct.getId(),
+                userId,
+                savedProduct.getStatus()
+        );
+
+        return productMapper.toDto(savedProduct);
     }
 
+    /**
+     * Hard-deletes an existing product.
+     */
     @Override
     @Caching(evict = {
             @CacheEvict(value = "productById", key = "#productId"),
@@ -126,44 +176,13 @@ public class ProductServiceImpl implements ProductService {
     })
     @Transactional
     public void deleteProduct(UUID userId, Long productId) {
-        log.warn("Deleting product: id={}, user={}", productId, userId);
+        log.warn("WARNING: User {} is deleting product {}!",
+                userId,
+                productId
+        );
 
-        Product existingProduct = findProductById(productId);
-        productRepository.delete(existingProduct);
+        productRepository.delete(orderHelper.findProductById(productId));
 
         log.info("Product deleted: id={}", productId);
-    }
-
-    /**
-     * Helper methods
-     */
-    private Brand findBrandById(Long brandId) {
-        return brandRepository.findById(brandId)
-                .orElseThrow(() -> new ResourceNotFoundException("Brand not found with id: " + brandId));
-    }
-
-    private Product findProductById(Long productId){
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
-    }
-
-    private ProductProjection findProductProjectionById(Long productId) {
-        return productRepository.findProductByIdWithBrandName(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
-    }
-
-    private void markAsCreated(Product product, UUID userId) {
-        product.setCreatedAt(LocalDateTime.now());
-        product.setCreatedBy(userId);
-    }
-
-    private void markAsUpdated(Product product, UUID userId) {
-        product.setUpdatedAt(LocalDateTime.now());
-        product.setUpdatedBy(userId);
-    }
-
-    private void markAsSoftDeleted(Product product, UUID userId) {
-        product.setDeletedAt(LocalDateTime.now());
-        product.setDeletedBy(userId);
     }
 }

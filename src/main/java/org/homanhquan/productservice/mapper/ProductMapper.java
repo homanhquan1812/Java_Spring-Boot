@@ -70,13 +70,15 @@ public interface ProductMapper {
      * DTO -> Entity (CREATE)
      */
     @IgnoreSystemFields
-    @Mapping(target = "status", expression = "java(Status.ACTIVE)")
+    @Mapping(target = "brand", ignore = true)
+    @Mapping(target = "status", ignore = true)
     Product toEntity(CreateProductRequest createProductRequest);
 
     /**
      * DTO -> Entity (UPDATE)
      */
     @IgnoreSystemFields
+    @Mapping(target = "brand", ignore = true)
     @Mapping(target = "status", ignore = true)
     void updateEntityFromDto(UpdateProductRequest updateProductRequest, @MappingTarget Product product);
 
@@ -84,6 +86,7 @@ public interface ProductMapper {
     @Mapping(target = "name", ignore = true)
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "price", ignore = true)
-    @Mapping(target = "status", expression = "java(Status.SUSPENDED)")
-    void updateEntityFromDtoForStatus(UpdateProductStatusRequest updateProductStatusRequest, @MappingTarget Product product);
+    @Mapping(target = "brand", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    void updateStatusFromDto(UpdateProductStatusRequest request, @MappingTarget Product product);
 }

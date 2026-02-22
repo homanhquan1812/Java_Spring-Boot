@@ -23,8 +23,8 @@ public interface ProductService {
     List<ProductResponse> getAllProducts();
     PageResponse<ProductResponse> getProductsPage(Pageable pageable);
     ProductResponse getProductById(Long productId);
-    ProductResponse createProduct(UUID userId, CreateProductRequest createProductRequest);
-    ProductResponse updateProduct(UUID userId, Long productId, UpdateProductRequest updateProductRequest);
-    ProductResponse updateProductStatus(UUID userId, Long productId, UpdateProductStatusRequest updateProductStatusRequest);
+    ProductResponse createProduct(UUID userId, CreateProductRequest request);
+    ProductResponse updateProduct(UUID userId, Long productId, UpdateProductRequest request);
+    ProductResponse updateProductStatus(UUID userId, Long productId, UpdateProductStatusRequest request);
     void deleteProduct(UUID userId, Long productId);
 }

@@ -33,10 +33,6 @@ public class Cart {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @Transient
     private BigDecimal totalPrice;
 }

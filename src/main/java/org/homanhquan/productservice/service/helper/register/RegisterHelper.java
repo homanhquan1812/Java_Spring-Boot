@@ -1,4 +1,4 @@
-package org.homanhquan.productservice.service.helper;
+package org.homanhquan.productservice.service.helper.register;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +18,8 @@ import org.homanhquan.productservice.repository.*;
 import org.homanhquan.productservice.service.EmailService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -58,6 +60,7 @@ public class RegisterHelper {
         UserInfo savedUserInfo = userInfoRepository.save(userInfo);
 
         log.info("UserInfo saved for user: {}", userRegisterRequest.username());
+
         return savedUserInfo;
     }
 
@@ -66,6 +69,7 @@ public class RegisterHelper {
         User savedUser = userRepository.save(user);
 
         log.info("Users entity saved for user: {}", userInfo.getUsername());
+
         return savedUser;
     }
 
@@ -78,6 +82,7 @@ public class RegisterHelper {
         log.info("Default cart created for userId: {}", userId);
     }
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendWelcomeEmail(UserRegisterRequest userRegisterRequest) {
         emailService.sendWelcomeEmail(userRegisterRequest.email(), userRegisterRequest.username());
 

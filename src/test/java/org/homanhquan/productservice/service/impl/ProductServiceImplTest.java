@@ -306,7 +306,7 @@ class ProductServiceImplTest {
             when(productRepository.findById(productId)).thenReturn(Optional.of(product));
             when(productRepository.save(product)).thenReturn(product);
             when(productMapper.toDto(product)).thenReturn(productResponse);
-            doNothing().when(productMapper).updateEntityFromDtoForStatus(request, product);
+            doNothing().when(productMapper).updateStatusFromDto(request, product);
 
             // When
             ProductResponse result = productService.updateProductStatus(userId, productId, request);

@@ -1,4 +1,4 @@
-package org.homanhquan.productservice.service.helper;
+package org.homanhquan.productservice.service.helper.login;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,6 @@ public class LoginHelper {
                     )
             );
         } catch (BadCredentialsException e) {
-            log.error("Login failed for user: {}", loginRequest.username());
             throw new UnauthorizedException("Invalid username or password");
         }
     }

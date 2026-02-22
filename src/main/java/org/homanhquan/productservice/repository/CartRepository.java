@@ -15,12 +15,11 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
         SELECT
             ci.name,
             ci.price,
-            ci.quantity,
-            c.updated_at
-        FROM cart_item ci
-        LEFT JOIN cart c ON c.id = ci.cart_id
-        WHERE c.user_id = :id
-        """, nativeQuery = true)
+            ci.quantity
+        FROM CartItem ci
+        LEFT JOIN Cart c ON c.id = ci.cartId
+        WHERE c.userId = :id
+        """)
     List<CartItemProjection> findCartWithSpecificItemsById(@Param("id") UUID id);
 
     Optional<Cart> findByUserId(@Param("id") UUID id);

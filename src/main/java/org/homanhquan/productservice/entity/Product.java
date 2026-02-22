@@ -11,19 +11,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.homanhquan.productservice.entity.common.Auditable;
+import org.homanhquan.productservice.entity.common.FullAuditable;
 import org.homanhquan.productservice.enums.Status;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * At application startup, Hibernate performs ORM by scanning @Entity classes and building schema-level metadata
@@ -80,7 +79,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Product extends Auditable {
+public class Product extends FullAuditable {
 
     /**
      * Which type of ID to choose?
@@ -122,6 +121,12 @@ public class Product extends Auditable {
     @Column(name = "price", nullable = false, precision = 18, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "deleted_by")
+    private UUID deletedBy;
+
     // Manual equals() & hashCode()
     @Override
     public boolean equals(Object o) {
@@ -156,4 +161,10 @@ public class Product extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
+
+    public void softDelete(UUID userId) {
+        this.status = Status.SUSPENDED;
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = userId;
+    }
 }

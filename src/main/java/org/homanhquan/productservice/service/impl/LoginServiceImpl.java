@@ -8,7 +8,7 @@ import org.homanhquan.productservice.exception.ResourceNotFoundException;
 import org.homanhquan.productservice.exception.UnauthorizedException;
 import org.homanhquan.productservice.projection.LoginProjection;
 import org.homanhquan.productservice.service.LoginService;
-import org.homanhquan.productservice.service.helper.LoginHelper;
+import org.homanhquan.productservice.service.helper.login.LoginHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,10 +20,10 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * Authenticates user and generates JWT token with the following steps:
-     * 1. Validates user credentials via Spring Security
-     * 2. Retrieves user information from database
-     * 3. Generates JWT token with user details and role
-     * 4. Returns login response with token and user info
+     * 1. Validates user credentials via Spring Security.
+     * 2. Retrieves user information from database.
+     * 3. Generates JWT token with user details and role.
+     * 4. Returns login response with token and user info.
      *
      * @param loginRequest contains username and password
      * @return LoginResponse with JWT token, username, fullName, and role

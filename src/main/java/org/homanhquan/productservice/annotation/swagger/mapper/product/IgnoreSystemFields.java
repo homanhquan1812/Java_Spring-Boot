@@ -24,6 +24,5 @@ import java.lang.annotation.Target;
 @Mapping(target = "createdBy", ignore = true)
 @Mapping(target = "updatedBy", ignore = true)
 @Mapping(target = "deletedBy", ignore = true)
-@Mapping(target = "brand", ignore = true)
 public @interface IgnoreSystemFields {
 }

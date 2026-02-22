@@ -21,9 +21,9 @@ public class LogoutServiceImpl implements LogoutService {
             tokenBlacklistService.blacklistToken(token);
         }
 
-        return new LogoutResponse(
-                "Logged out successfully",
-                LocalDateTime.now()
-        );
+        return LogoutResponse.builder()
+                .message("Logged out successfully.")
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 }

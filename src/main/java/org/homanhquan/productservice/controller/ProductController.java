@@ -37,10 +37,6 @@ import static org.homanhquan.productservice.common.constants.ProductSortConstant
 import static org.homanhquan.productservice.common.constants.ProductSortConstants.MIN_SIZE;
 
 /**
- * Spring Boot uses Jackson to convert data between Java objects and JSON in controllers. Specifically:
- * - Serialization: Java object → JSON.
- * - Deserialization: JSON → Java object.
- * ==================================================
  * Annotation definition:
  * - @Tag: Groups related API endpoints in Swagger documentation.
  * - @RequiredArgsConstructor: Automatically injects dependencies for constructor.
@@ -143,9 +139,9 @@ public class ProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse createProduct(
             @AuthenticationPrincipal(expression = "id") UUID userId,
-            @Valid @RequestBody CreateProductRequest createProductRequest
+            @Valid @RequestBody CreateProductRequest request
     ) {
-        return productService.createProduct(userId, createProductRequest);
+        return productService.createProduct(userId, request);
     }
 
     // [PATCH] /api/product/{productId}
@@ -155,8 +151,8 @@ public class ProductController {
     public ProductResponse updateProduct(
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @PathVariable @Min(1) Long productId,
-            @Valid @RequestBody UpdateProductRequest updateProductRequest) {
-        return productService.updateProduct(userId, productId, updateProductRequest);
+            @Valid @RequestBody UpdateProductRequest request) {
+        return productService.updateProduct(userId, productId, request);
     }
 
     // [PATCH] /api/product/{productId}/status
@@ -166,8 +162,8 @@ public class ProductController {
     public ProductResponse updateProductStatus(
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @PathVariable @Min(1) Long productId,
-            @Valid @RequestBody UpdateProductStatusRequest updateProductStatusRequest) {
-        return productService.updateProductStatus(userId, productId, updateProductStatusRequest);
+            @Valid @RequestBody UpdateProductStatusRequest request) {
+        return productService.updateProductStatus(userId, productId, request);
     }
 
     // [DELETE] /api/product/{productId}
