@@ -18,7 +18,4 @@ public interface OrderMapper {
 
     // Entity -> DTO
     OrderResponse toDto(Order order);
-
-    @Mapping(target = "id", ignore = true)
-    void updateEntityFromDto(UpdateOrderStatusRequest request, @MappingTarget Order order);
 }

@@ -73,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Brand not found with id: " + orderId));
 
-        orderMapper.updateEntityFromDto(request, order);
+        order.changeStatus(request.status());
 
         return orderMapper.toDto(orderRepository.save(order));
     }

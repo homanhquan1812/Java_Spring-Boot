@@ -8,21 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginMapper {
 
-    public CustomUserDetails toUserDetails(UserInfoProjection user) {
-        return CustomUserDetails.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .role(user.getRole())
-                .build();
-    }
-
-    public LoginResponse toLoginResponse(UserInfoProjection user, String token) {
+    public LoginResponse toLoginResponse(CustomUserDetails userDetails, String token) {
         return LoginResponse.builder()
-                .id(user.getId())
+                .id(userDetails.getId())
                 .token(token)
-                .username(user.getUsername())
-                .fullName(user.getFullName())
-                .role(user.getRole())
+                .username(userDetails.getUsername())
+                .fullName(userDetails.getFullName())
+                .role(userDetails.getRole())
                 .build();
     }
 }

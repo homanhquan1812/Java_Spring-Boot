@@ -174,6 +174,10 @@ public class Product extends FullAuditable {
     }
 
     public void softDelete(UUID userId) {
+        if (this.deletedAt != null) {
+            throw new IllegalStateException("Product already deleted");
+        }
+
         this.status = Status.SUSPENDED;
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = userId;

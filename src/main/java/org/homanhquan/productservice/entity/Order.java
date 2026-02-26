@@ -50,4 +50,8 @@ public class Order extends DateAuditable {
     public void setDefaultStatus() {
         this.status = Status.PENDING;
     }
+
+    public void changeStatus(Status status) {
+        this.status = status;
+    }
 }

@@ -16,11 +16,13 @@ import org.homanhquan.productservice.projection.UserInfoProjection;
 import org.homanhquan.productservice.repository.UserInfoRepository;
 import org.homanhquan.productservice.security.jwt.JwtUtil;
 import org.homanhquan.productservice.security.jwt.TokenBlacklistService;
+import org.homanhquan.productservice.security.userDetails.CustomUserDetails;
 import org.homanhquan.productservice.service.AuthService;
 import org.homanhquan.productservice.service.helper.auth.login.AuthenticationHelper;
 import org.homanhquan.productservice.service.helper.auth.login.LoginMapper;
 import org.homanhquan.productservice.service.helper.auth.register.CreateCompleteUserHelper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,14 +62,11 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        authenticationHelper.authenticate(loginRequest);
+        CustomUserDetails userDetails = authenticationHelper.authenticate(loginRequest);
 
-        UserInfoProjection user = userInfoRepository.findByUsernameAndRole(loginRequest.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + loginRequest.username()));
+        String token = jwtUtil.generateToken(userDetails);
 
-        String token = jwtUtil.generateToken(loginMapper.toUserDetails(user));
-
-        return loginMapper.toLoginResponse(user, token);
+        return loginMapper.toLoginResponse(userDetails, token);
     }
 
     @Override
