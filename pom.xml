@@ -90,11 +90,11 @@
             <artifactId>mssql-jdbc</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- Swagger -->
+        <!-- Swagger: http://localhost:8080/swagger-ui/index.html -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.3.0</version>
+            <version>3.0.1</version>
         </dependency>
         <!-- JWT -->
         <dependency>
@@ -113,6 +113,12 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.12.6</version>
             <scope>runtime</scope>
+        </dependency>
+        <!-- Caffeine for Rate Limit Filter -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.2.3</version>
         </dependency>
         <!-- Lombok: Reduces boilerplate code by auto-generating common methods (e.g. getters, setters) through annotations at compile time. -->
         <dependency>

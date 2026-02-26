@@ -3,7 +3,6 @@ package org.homanhquan.productservice.service;
 import org.homanhquan.productservice.dto.common.PageResponse;
 import org.homanhquan.productservice.dto.product.request.CreateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductRequest;
-import org.homanhquan.productservice.dto.product.request.UpdateProductStatusRequest;
 import org.homanhquan.productservice.dto.product.response.ProductResponse;
 import org.springframework.data.domain.Pageable;
 
@@ -20,11 +19,11 @@ import java.util.UUID;
  */
 public interface ProductService {
 
-    List<ProductResponse> getAllProducts();
-    PageResponse<ProductResponse> getProductsPage(Pageable pageable);
-    ProductResponse getProductById(Long productId);
-    ProductResponse createProduct(UUID userId, CreateProductRequest request);
-    ProductResponse updateProduct(UUID userId, Long productId, UpdateProductRequest request);
-    ProductResponse updateProductStatus(UUID userId, Long productId, UpdateProductStatusRequest request);
-    void deleteProduct(UUID userId, Long productId);
+    List<ProductResponse> getAll();
+    PageResponse<ProductResponse> getPage(Pageable pageable);
+    ProductResponse getById(Long productId);
+    ProductResponse create(UUID userId, CreateProductRequest request);
+    ProductResponse update(UUID userId, Long productId, UpdateProductRequest request);
+    ProductResponse updateStatus(UUID userId, Long productId);
+    void delete(UUID userId, Long productId);
 }

@@ -7,5 +7,4 @@ public interface CartItemProjection {
     String getName();
     BigDecimal getPrice();
     Integer getQuantity();
-    LocalDateTime getUpdatedAt();
 }

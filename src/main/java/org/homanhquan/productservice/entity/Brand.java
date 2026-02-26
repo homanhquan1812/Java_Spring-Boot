@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.homanhquan.productservice.entity.common.DateAuditable;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Brand {
+public class Brand extends DateAuditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,4 +66,16 @@ public class Brand {
             CascadeType.PERSIST, CascadeType.MERGE
     }, fetch = FetchType.LAZY)
     private List<Product> products = new ArrayList<>();
+
+    public static Brand of(String name, String description, String address, LocalTime openingHours, LocalTime closingHours) {
+        Brand brand = new Brand();
+
+        brand.name = name;
+        brand.description = description;
+        brand.address = address;
+        brand.openingHours = openingHours;
+        brand.closingHours = closingHours;
+
+        return brand;
+    }
 }

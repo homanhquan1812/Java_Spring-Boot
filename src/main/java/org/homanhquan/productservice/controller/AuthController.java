@@ -13,9 +13,7 @@ import org.homanhquan.productservice.dto.login.response.LoginResponse;
 import org.homanhquan.productservice.dto.logout.response.LogoutResponse;
 import org.homanhquan.productservice.dto.register.request.UserRegisterRequest;
 import org.homanhquan.productservice.dto.register.response.UserRegisterResponse;
-import org.homanhquan.productservice.service.LoginService;
-import org.homanhquan.productservice.service.LogoutService;
-import org.homanhquan.productservice.service.RegisterService;
+import org.homanhquan.productservice.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -63,16 +61,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final LoginService loginService;
-    private final LogoutService logoutService;
-    private final RegisterService registerService;
+    private final AuthService authService;
 
     // [POST] /auth/login
     @Operation(summary = "User login")
     @PublicLoginResponse
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest) {
-        return loginService.login(loginRequest);
+        return authService.login(loginRequest);
     }
 
     // [POST] /auth/logout
@@ -81,7 +77,7 @@ public class AuthController {
     @PostMapping("/logout")
     public LogoutResponse logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        return logoutService.logout(authHeader);
+        return authService.logout(authHeader);
     }
 
     // [POST] /auth/register/user
@@ -91,6 +87,6 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserRegisterResponse registerUser(
             @Valid @RequestBody UserRegisterRequest userRegisterRequest) {
-        return registerService.userRegister(userRegisterRequest);
+        return authService.userRegister(userRegisterRequest);
     }
 }

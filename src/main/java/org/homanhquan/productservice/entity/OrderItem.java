@@ -33,7 +33,7 @@ public class OrderItem {
     private UUID orderId;
 
     @Column(name = "product_id", nullable = false)
-    private String productId;
+    private Long productId;
 
     @Column(name = "name", nullable = false, length = 50)
     private String name;
@@ -44,7 +44,16 @@ public class OrderItem {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    // Static Factory Method
+    public static OrderItem of(UUID orderId, Long productId, String name, BigDecimal price, Integer quantity) {
+        OrderItem orderItem = new OrderItem();
+
+        orderItem.orderId = orderId;
+        orderItem.productId = productId;
+        orderItem.name = name;
+        orderItem.price = price;
+        orderItem.quantity = quantity;
+
+        return orderItem;
+    }
 }

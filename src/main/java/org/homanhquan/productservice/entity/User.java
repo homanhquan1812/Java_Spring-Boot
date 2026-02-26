@@ -15,6 +15,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.homanhquan.productservice.entity.common.DateAuditable;
 import org.homanhquan.productservice.enums.Role;
 import org.homanhquan.productservice.enums.Status;
 
@@ -26,7 +27,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class User extends DateAuditable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", columnDefinition = "UNIQUEIDENTIFIER", updatable = false, nullable = false)
@@ -47,17 +48,6 @@ public class User {
     @Column(name = "role", nullable = false, length = 10)
     private Role role;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     // Manual equals() & hashCode()
     @Override
     public boolean equals(Object o) {
@@ -69,5 +59,17 @@ public class User {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    // Static Factory Method
+    public static User of(UUID userInfoId, Long brandId) {
+        User user = new User();
+
+        user.userInfoId = userInfoId;
+        user.brandId = brandId;
+        user.status = Status.ACTIVE;
+        user.role = Role.USER;
+
+        return user;
     }
 }

@@ -31,6 +31,10 @@ public class GlobalExceptionHandler {
     /**
      * Handles validation errors from @Valid annotated requests (e.g. Invalid email, date).
      * Status code: 400.
+     *
+     * @param ex
+     * @param request
+     * @return
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationError(
@@ -56,6 +60,10 @@ public class GlobalExceptionHandler {
     /**
      * Handles custom bad request exceptions for business logic (e.g. User below 18 years old can't use this feature).
      * Status code: 400.
+     *
+     * @param ex
+     * @param request
+     * @return
      */
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(
@@ -75,6 +83,10 @@ public class GlobalExceptionHandler {
     /**
      * Handles authentication failures (e.g. Incorrect username or password).
      * Status code: 401.
+     *
+     * @param ex
+     * @param request
+     * @return
      */
     @ExceptionHandler({UnauthorizedException.class, BadCredentialsException.class})
     public ResponseEntity<ErrorResponse> handleUnauthorized(
@@ -94,6 +106,10 @@ public class GlobalExceptionHandler {
     /**
      * Handles authorization failures (e.g. Users can't access admin panel).
      * Status code: 403.
+     *
+     * @param ex
+     * @param request
+     * @return
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(
@@ -113,6 +129,10 @@ public class GlobalExceptionHandler {
     /**
      * Handles resource not found exceptions.
      * Status code: 404.
+     *
+     * @param ex
+     * @param request
+     * @return
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(
@@ -131,6 +151,10 @@ public class GlobalExceptionHandler {
     /**
      * Handles all uncaught exceptions (Internal server error).
      * Status code: 500.
+     *
+     * @param ex
+     * @param request
+     * @return
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(

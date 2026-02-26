@@ -3,12 +3,15 @@ package org.homanhquan.productservice.mapper;
 import org.homanhquan.productservice.annotation.swagger.mapper.product.IgnoreSystemFields;
 import org.homanhquan.productservice.dto.product.request.CreateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductRequest;
-import org.homanhquan.productservice.dto.product.request.UpdateProductStatusRequest;
 import org.homanhquan.productservice.dto.product.response.ProductResponse;
 import org.homanhquan.productservice.entity.Product;
 import org.homanhquan.productservice.enums.Status;
 import org.homanhquan.productservice.projection.ProductProjection;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
@@ -50,8 +53,7 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         imports = {
                 Status.class
-        },
-        builder = @Builder(disableBuilder = true)
+        }
 )
 public interface ProductMapper {
     /**
@@ -81,12 +83,4 @@ public interface ProductMapper {
     @Mapping(target = "brand", ignore = true)
     @Mapping(target = "status", ignore = true)
     void updateEntityFromDto(UpdateProductRequest updateProductRequest, @MappingTarget Product product);
-
-    @IgnoreSystemFields
-    @Mapping(target = "name", ignore = true)
-    @Mapping(target = "description", ignore = true)
-    @Mapping(target = "price", ignore = true)
-    @Mapping(target = "brand", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    void updateStatusFromDto(UpdateProductStatusRequest request, @MappingTarget Product product);
 }

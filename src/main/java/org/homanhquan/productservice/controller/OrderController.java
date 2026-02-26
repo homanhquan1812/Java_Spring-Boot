@@ -10,9 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.homanhquan.productservice.annotation.swagger.crud.*;
 import org.homanhquan.productservice.dto.common.PageResponse;
 import org.homanhquan.productservice.dto.orderItem.response.OrderItemResponse;
-import org.homanhquan.productservice.dto.order.request.CreateOrderRequest;
 import org.homanhquan.productservice.dto.order.request.UpdateOrderStatusRequest;
 import org.homanhquan.productservice.dto.order.response.OrderResponse;
+import org.homanhquan.productservice.enums.Role;
+import org.homanhquan.productservice.security.userDetails.CustomUserDetails;
 import org.homanhquan.productservice.service.OrderService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,15 +77,12 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    /**
-     * USER's functionalities:
-     */
-    // [GET] /api/order/my-list
+    // [GET] /api/order/all
     @Operation(summary = "Users get their orders with pagination")
     @GetAllApiResponse
     @AuthApiResponse
-    @GetMapping("/my-list")
-    public PageResponse<OrderResponse> getAllOrders(
+    @GetMapping("/all")
+    public PageResponse<OrderResponse> getPage(
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @RequestParam(defaultValue = "0") @Min(MIN_PAGE) int page,
             @RequestParam(defaultValue = "10") @Min(MIN_SIZE) @Max(MAX_SIZE) int size,
@@ -107,45 +104,34 @@ public class OrderController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
 
-        return orderService.getAllOrders(pageable, userId);
+        return orderService.getPage(pageable, userId);
     }
 
-    // [GET] /api/order/my-list/{orderId}
+    // [GET] /api/order/{orderId}
     @Operation(summary = "Users get a list of order items from order ID")
     @GetByIdApiResponse
     @AuthApiResponse
-    @GetMapping("/my-list/{orderId}")
-    public List<OrderItemResponse> getSpecificOrder(
-            @AuthenticationPrincipal(expression = "id") UUID userId,
+    @GetMapping("/{orderId}")
+    public List<OrderItemResponse> getById(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable UUID orderId
     ) {
-        return orderService.getSpecificOrder(userId, orderId);
+        Role role = customUserDetails.getRole();
+        UUID userId = customUserDetails.getId();
+
+        return orderService.getById(userId, role, orderId);
     }
 
-    // [POST] /api/order/submit
-    @Operation(summary = "Users submit an order to the system")
-    @PostApiResponse
-    @AuthApiResponse
-    @PostMapping("/submit")
-    public ResponseEntity<OrderResponse> createOrder(
-            @AuthenticationPrincipal(expression = "id") UUID userId,
-            @Valid @RequestBody CreateOrderRequest createOrderRequest) {
-        return ResponseEntity.ok(orderService.createOrder(userId, createOrderRequest));
-    }
-
-    /**
-     * STAFF's functionalities:
-     */
     // [PATCH] /api/order/{orderId}/status
     @Operation(summary = "Staffs update order's status")
     @PutAndPatchApiResponse
     @AuthApiResponse
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<OrderResponse> updateOrderStatus(
+    public ResponseEntity<OrderResponse> updateStatus(
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @PathVariable UUID orderId,
-            @Valid @RequestBody UpdateOrderStatusRequest updateOrderStatusRequest) {
-        return ResponseEntity.ok(orderService.updateOrderStatus(userId, orderId, updateOrderStatusRequest));
+            @Valid @RequestBody UpdateOrderStatusRequest request) {
+        return ResponseEntity.ok(orderService.updateStatus(userId, orderId, request));
     }
 }
 

@@ -19,9 +19,6 @@ public interface OrderMapper {
     // Entity -> DTO
     OrderResponse toDto(Order order);
 
-    // Entity -> DTO List
-    OrderResponse toDtoPage(Order order);
-
     @Mapping(target = "id", ignore = true)
-    void updateEntityFromDto(UpdateOrderStatusRequest updateOrderStatusRequest, @MappingTarget Order order);
+    void updateEntityFromDto(UpdateOrderStatusRequest request, @MappingTarget Order order);
 }

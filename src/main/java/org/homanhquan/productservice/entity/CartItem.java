@@ -32,7 +32,7 @@ public class CartItem {
     private UUID cartId;
 
     @Column(name = "product_id", nullable = false)
-    private String productId;
+    private Long productId;
 
     @Column(name = "name", nullable = false, length = 50)
     private String name;
@@ -43,4 +43,16 @@ public class CartItem {
     @Column(name = "quantity", nullable = false)
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
+
+    // Static Factory Method
+    public static CartItem of(UUID cartId, Long productId, String name, Integer quantity) {
+        CartItem cartItem = new CartItem();
+
+        cartItem.cartId = cartId;
+        cartItem.productId = productId;
+        cartItem.name = name;
+        cartItem.quantity = quantity;
+
+        return cartItem;
+    }
 }

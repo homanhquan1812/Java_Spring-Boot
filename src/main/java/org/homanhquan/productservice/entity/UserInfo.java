@@ -63,4 +63,19 @@ public class UserInfo {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    // Static Factory Method
+    public static UserInfo of(String fullName, String username, String password, String email, String phone, Gender gender, String address) {
+        UserInfo userInfo = new UserInfo();
+
+        userInfo.fullName = fullName;
+        userInfo.username = username;
+        userInfo.password = password;
+        userInfo.email = email;
+        userInfo.phone = phone;
+        userInfo.gender = gender;
+        userInfo.address = address;
+
+        return userInfo;
+    }
 }

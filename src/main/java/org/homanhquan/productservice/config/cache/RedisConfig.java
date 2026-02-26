@@ -1,7 +1,10 @@
 package org.homanhquan.productservice.config.cache;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,7 +43,14 @@ import static org.homanhquan.productservice.common.constants.ProductCacheConstan
 @Slf4j
 @Configuration
 @EnableCaching
+@ConfigurationProperties(prefix = "cache.ttl")
+@Getter
+@Setter
 public class RedisConfig {
+
+    private int defaultMinutes;
+    private int allProductsMinutes;
+    private int productByIdMinutes;
 
     /**
      * Handles automatic serialization/deserialization and TTL management for cached data.
@@ -57,7 +67,7 @@ public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(15))
+                .entryTtl(Duration.ofMinutes(defaultMinutes))
                 .disableCachingNullValues()
                 .serializeKeysWith(
                         RedisSerializationContext.SerializationPair
@@ -69,8 +79,8 @@ public class RedisConfig {
                 );
 
         Map<String, RedisCacheConfiguration> configs = Map.of(
-                ALL_PRODUCTS, defaultConfig.entryTtl(Duration.ofMinutes(30)),
-                PRODUCT_BY_ID, defaultConfig.entryTtl(Duration.ofMinutes(15))
+                ALL_PRODUCTS, defaultConfig.entryTtl(Duration.ofMinutes(allProductsMinutes)),
+                PRODUCT_BY_ID, defaultConfig.entryTtl(Duration.ofMinutes(productByIdMinutes))
         );
 
         return RedisCacheManager.builder(factory)
@@ -80,12 +90,11 @@ public class RedisConfig {
     }
 
     /**
-     * Used for custom Redis operations like token blacklisting, session management, or manual key-value storage.
-     * ==================================================
-     * Method explanation:
-     * - setConnectionFactory(): Provides the Redis connection configuration (host, port, password, pool settings) to the RedisTemplate.
-     * - setKeySerializer(): Stores keys as plain strings (e.g., "blacklist:token:abc123").
-     * - setValueSerializer(): Stores values as plain strings (e.g., "revoked").
+     * redisTemplate is used for custom Redis operations (e.g. token blacklisting, session management, or manual key-value storage)
+     * using Key-Value pairs stored as plain strings:
+     * - Key: A string identifier used to locate data in Redis (e.g. "product:1").
+     * - Value: The string data stored for that key (e.g. { "id": 1, "name": "iPhone" }).
+     * @Cacheable follows Redis Key format: <cacheName>::<generatedKey> (e.g. "productById::1").
      */
     @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {

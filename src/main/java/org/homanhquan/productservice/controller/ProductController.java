@@ -15,7 +15,6 @@ import org.homanhquan.productservice.annotation.swagger.crud.GetAllApiResponse;
 import org.homanhquan.productservice.dto.common.PageResponse;
 import org.homanhquan.productservice.dto.product.request.CreateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductRequest;
-import org.homanhquan.productservice.dto.product.request.UpdateProductStatusRequest;
 import org.homanhquan.productservice.dto.product.response.ProductResponse;
 import org.homanhquan.productservice.service.ProductService;
 import org.springframework.data.domain.PageRequest;
@@ -89,8 +88,8 @@ public class ProductController {
     )
     @GetAllApiResponse
     @GetMapping("/list")
-    public List<ProductResponse> getAllProducts() {
-        return productService.getAllProducts()
+    public List<ProductResponse> getAll() {
+        return productService.getAll()
                 .stream()
                 .limit(100)
                 .toList();
@@ -100,7 +99,7 @@ public class ProductController {
     @Operation(summary = "Get products with pagination")
     @GetAllApiResponse
     @GetMapping
-    public PageResponse<ProductResponse> getProductsPage(
+    public PageResponse<ProductResponse> getPage(
             @RequestParam(defaultValue = "0") @Min(MIN_PAGE) int page,
             @RequestParam(defaultValue = "10") @Min(MIN_SIZE) @Max(MAX_SIZE) int size,
             @RequestParam(defaultValue = DEFAULT_SORT_FIELD) String sort,
@@ -121,15 +120,15 @@ public class ProductController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
 
-        return productService.getProductsPage(pageable);
+        return productService.getPage(pageable);
     }
 
     // [GET] /api/product/{productId}
     @Operation(summary = "Get product by ID")
     @GetByIdApiResponse
     @GetMapping("/{productId}")
-    public ProductResponse getProductById(@PathVariable @Min(1) Long productId) {
-        return productService.getProductById(productId);
+    public ProductResponse getById(@PathVariable @Min(1) Long productId) {
+        return productService.getById(productId);
     }
 
     // [POST] /api/product
@@ -137,33 +136,32 @@ public class ProductController {
     @Operation(summary = "Create new product")
     @PostApiResponse
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(
+    public ProductResponse create(
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @Valid @RequestBody CreateProductRequest request
     ) {
-        return productService.createProduct(userId, request);
+        return productService.create(userId, request);
     }
 
     // [PATCH] /api/product/{productId}
     @Operation(summary = "Update product by ID")
     @PutAndPatchApiResponse
     @PatchMapping("/{productId}")
-    public ProductResponse updateProduct(
+    public ProductResponse update(
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @PathVariable @Min(1) Long productId,
             @Valid @RequestBody UpdateProductRequest request) {
-        return productService.updateProduct(userId, productId, request);
+        return productService.update(userId, productId, request);
     }
 
     // [PATCH] /api/product/{productId}/status
     @Operation(summary = "Update product status (soft-delete) by ID")
     @PutAndPatchApiResponse
     @PatchMapping("/{productId}/status")
-    public ProductResponse updateProductStatus(
+    public ProductResponse updateStatus(
             @AuthenticationPrincipal(expression = "id") UUID userId,
-            @PathVariable @Min(1) Long productId,
-            @Valid @RequestBody UpdateProductStatusRequest request) {
-        return productService.updateProductStatus(userId, productId, request);
+            @PathVariable @Min(1) Long productId) {
+        return productService.updateStatus(userId, productId);
     }
 
     // [DELETE] /api/product/{productId}
@@ -171,10 +169,10 @@ public class ProductController {
     @DeleteApiResponse
     @DeleteMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProduct(
+    public void delete(
             @AuthenticationPrincipal(expression = "id") UUID userId,
             @PathVariable @Min(1) Long productId
     ) {
-        productService.deleteProduct(userId, productId);
+        productService.delete(userId, productId);
     }
 }

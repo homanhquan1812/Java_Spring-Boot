@@ -1,7 +1,0 @@
-package org.homanhquan.productservice.service;
-
-public interface TokenBlacklistService {
-
-    void blacklistToken(String token);
-    boolean isBlacklisted(String token);
-}

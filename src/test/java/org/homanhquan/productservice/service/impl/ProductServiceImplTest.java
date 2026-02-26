@@ -1,16 +1,14 @@
 package org.homanhquan.productservice.service.impl;
 
-import org.homanhquan.productservice.builder.product.entity.BrandTestBuilder;
-import org.homanhquan.productservice.builder.product.entity.ProductTestBuilder;
+import org.homanhquan.productservice.builder.product.entity.BrandTestFixture;
+import org.homanhquan.productservice.builder.product.entity.ProductTestFixture;
 import org.homanhquan.productservice.builder.product.request.CreateProductRequestBuilder;
 import org.homanhquan.productservice.builder.product.request.UpdateProductRequestBuilder;
 import org.homanhquan.productservice.builder.product.response.ProductResponseBuilder;
 import org.homanhquan.productservice.dto.product.request.CreateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductRequest;
-import org.homanhquan.productservice.dto.product.request.UpdateProductStatusRequest;
 import org.homanhquan.productservice.dto.product.response.ProductResponse;
 import org.homanhquan.productservice.entity.Product;
-import org.homanhquan.productservice.enums.Status;
 import org.homanhquan.productservice.exception.ResourceNotFoundException;
 import org.homanhquan.productservice.mapper.ProductMapper;
 import org.homanhquan.productservice.projection.ProductProjection;
@@ -30,12 +28,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.BDDAssertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -110,7 +110,7 @@ class ProductServiceImplTest {
         userId = UUID.randomUUID();
         productId = 1L;
         brandId = 1L;
-        product = ProductTestBuilder.buildProduct();
+        product = ProductTestFixture.buildProduct();
         productResponse = ProductResponseBuilder.productResponse();
         productProjection = mock(ProductProjection.class);
     }
@@ -136,7 +136,7 @@ class ProductServiceImplTest {
             /**
              * WHEN Controller invokes "productService.getAllProducts()", we get a result (response).
              */
-            List<ProductResponse> result = productService.getAllProducts();
+            List<ProductResponse> result = productService.getAll();
 
             /**
              * THEN we:
@@ -160,7 +160,7 @@ class ProductServiceImplTest {
             when(productMapper.projectionToDto(productProjection)).thenReturn(productResponse);
 
             // When
-            var result = productService.getProductsPage(pageable);
+            var result = productService.getPage(pageable);
 
             // Then
             assertThat(result).isNotNull();
@@ -179,7 +179,7 @@ class ProductServiceImplTest {
             when(productMapper.projectionToDto(productProjection)).thenReturn(productResponse);
 
             // When
-            ProductResponse result = productService.getProductById(productId);
+            ProductResponse result = productService.getById(productId);
 
             // Then
             assertThat(result).isNotNull();
@@ -197,7 +197,7 @@ class ProductServiceImplTest {
                     .thenReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> productService.getProductById(productId))
+            assertThatThrownBy(() -> productService.getById(productId))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining("Product not found with id: " + productId);
 
@@ -217,12 +217,12 @@ class ProductServiceImplTest {
             CreateProductRequest request = CreateProductRequestBuilder.createProductRequest();
 
             when(productMapper.toEntity(request)).thenReturn(product);
-            when(brandRepository.findById(brandId)).thenReturn(Optional.of(BrandTestBuilder.brand()));
+            when(brandRepository.findById(brandId)).thenReturn(Optional.of(BrandTestFixture.buildBrand()));
             when(productRepository.save(any(Product.class))).thenReturn(product);
             when(productMapper.toDto(product)).thenReturn(productResponse);
 
             // When
-            ProductResponse result = productService.createProduct(userId, request);
+            ProductResponse result = productService.create(userId, request);
 
             // Then
             assertThat(result).isNotNull();
@@ -244,7 +244,7 @@ class ProductServiceImplTest {
             when(brandRepository.findById(brandId)).thenReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> productService.createProduct(userId, request))
+            assertThatThrownBy(() -> productService.create(userId, request))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining("Brand not found with id: 1");
 
@@ -269,7 +269,7 @@ class ProductServiceImplTest {
             doNothing().when(productMapper).updateEntityFromDto(request, product);
 
             // When
-            ProductResponse result = productService.updateProduct(userId, productId, request);
+            ProductResponse result = productService.update(userId, productId, request);
 
             // Then
             assertThat(result).isNotNull();
@@ -289,7 +289,7 @@ class ProductServiceImplTest {
             when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> productService.updateProduct(userId, productId, request))
+            assertThatThrownBy(() -> productService.update(userId, productId, request))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining("Product not found with id: " + productId);
 
@@ -301,20 +301,20 @@ class ProductServiceImplTest {
         @DisplayName("Should update product status successfully")
         void updateProductStatus_WithValidData_ShouldUpdateStatus() {
             // Given
-            UpdateProductStatusRequest request = new UpdateProductStatusRequest(Status.SUSPENDED);
+            //UpdateProductStatusRequest request = new UpdateProductStatusRequest(Status.SUSPENDED);
 
             when(productRepository.findById(productId)).thenReturn(Optional.of(product));
             when(productRepository.save(product)).thenReturn(product);
             when(productMapper.toDto(product)).thenReturn(productResponse);
-            doNothing().when(productMapper).updateStatusFromDto(request, product);
+            //doNothing().when(productMapper).updateStatusFromDto(request, product);
 
             // When
-            ProductResponse result = productService.updateProductStatus(userId, productId, request);
+            ProductResponse result = productService.updateStatus(userId, productId);
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(product.getUpdatedBy()).isEqualTo(userId);
-            assertThat(product.getUpdatedAt()).isEqualTo(LocalDateTime.now());
+            assertThat(product.getDeletedBy()).isEqualTo(userId);
+            assertThat(product.getDeletedAt()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
 
             verify(productRepository).findById(productId);
             verify(productRepository).save(product);
@@ -333,7 +333,7 @@ class ProductServiceImplTest {
             doNothing().when(productRepository).delete(product);
 
             // When
-            productService.deleteProduct(userId, productId);
+            productService.delete(userId, productId);
 
             // Then
             verify(productRepository).findById(productId);
@@ -347,7 +347,7 @@ class ProductServiceImplTest {
             when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> productService.deleteProduct(userId, productId))
+            assertThatThrownBy(() -> productService.delete(userId, productId))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining("Product not found with id: " + productId);
 

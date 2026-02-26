@@ -11,11 +11,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -35,4 +32,14 @@ public class Cart {
 
     @Transient
     private BigDecimal totalPrice;
+
+    // Static Factory Method
+    public static Cart of(UUID userId) {
+        Cart cart = new Cart();
+
+        cart.userId = userId;
+        cart.totalPrice = BigDecimal.ZERO;
+
+        return cart;
+    }
 }

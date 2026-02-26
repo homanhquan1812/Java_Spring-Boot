@@ -13,7 +13,7 @@ spring:
       # If update: Hibernate automatically alters tables (Not good for production).
       ddl-auto: none
     # show-sql: Controls whether Hibernate prints generated SQL statements to the console
-    show-sql: true
+    show-sql: false
     # format_sql: Formats SQL to be more readable
     properties:
       hibernate:
@@ -92,6 +92,18 @@ logging:
     root: INFO
     org.homanhquan.product-service: DEBUG
     org.springframework.web: DEBUG
-    org.hibernate.SQL: OFF
-    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.hibernate.SQL: DEBUG                          # log SQL qua SLF4J
+    org.hibernate.orm.jdbc.bind: TRACE                # log parameter values
     org.flywaydb.core: INFO
+
+rate-limit:
+  capacity: 5
+  refill-duration-seconds: 60
+  max-cache-size: 10000
+  cache-entry-ttl-minutes: 10
+
+cache:
+  ttl:
+    default-minutes: 15
+    all-products-minutes: 30
+    product-by-id-minutes: 15

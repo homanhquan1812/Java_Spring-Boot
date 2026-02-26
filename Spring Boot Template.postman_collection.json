@@ -1,0 +1,541 @@
+{
+  "info": {
+    "_postman_id": "cc35ca63-064f-49c7-a9f5-a39b15f39576",
+    "name": "Spring Boot Template",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52008796",
+    "_collection_link": "https://go.postman.co/collection/34208271-cc35ca63-064f-49c7-a9f5-a39b15f39576?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    /*\r\n    ADMIN: vothihoa - admin123\r\n    CHEF: dothilan - staff123\r\n    WAITER: buiminhnam - staff123\r\n    USER: nguyenvanan/leminhchau - password123 & hmquan5 - Quan#1812@2000\r\n    */\r\n    \"username\": \"hmquan5\",\r\n    \"password\": \"Quan#1812@2000\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register (USER)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"fullName\": \"Ho Manh Quan\",\r\n    \"username\": \"homanhquan1812\",\r\n    \"password\": \"Quan#1812@2000\",\r\n    \"email\": \"homanhquan1812@gmail.com\",\r\n    \"phone\": \"0906877581\",\r\n    \"gender\": \"MALE\",\r\n    \"address\": \"123 Sussy Town\",\r\n    \"brandId\": \"1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/auth/register/user",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "auth",
+                "register",
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    /*\r\n    ADMIN: vothihoa - admin123\r\n    CHEF: dothilan - staff123\r\n    WAITER: buiminhnam - staff123\r\n    USER: nguyenvanan/leminhchau - password123\r\n    */\r\n    \"username\": \"vothihoa\",\r\n    \"password\": \"admin123\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": []
+    },
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "Read all products (Pageable)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/product?page=2&size=3&sort=price&direction=asc",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "product"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "size",
+                  "value": "3"
+                },
+                {
+                  "key": "sort",
+                  "value": "price"
+                },
+                {
+                  "key": "direction",
+                  "value": "asc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Read all products (List)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Read a product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/product/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "product",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ2b3RoaWhvYSIsInVzZXJJZCI6IjU1NTU1NTU1LWFhYWEtYmJiYi1jY2NjLTAwMDAwMDAwMDAwMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc3MTY2NDg1NCwiZXhwIjoxNzcxNjczNDk0fQ.chzSRgejhz9CajTdZCw-ylPFQamgcVhZAjj7oDKgmSxc_pV3Pe2u2Xh9nKoKv0gJ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Sussy Cake 4\",\r\n    \"price\": \"300\",\r\n    \"description\": \"This cake is so sussy\",\r\n    \"brandId\": \"1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/product",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ2b3RoaWhvYSIsInVzZXJJZCI6IjU1NTU1NTU1LWFhYWEtYmJiYi1jY2NjLTAwMDAwMDAwMDAwMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc3MDg4NDgzMCwiZXhwIjoxNzcwODkzNDcwfQ.Tcm5VEgwDzajY5u2YhUSLTOdoXzg7TiI9_OR7vjBbZ81eEJwxykwfxSRmmy-dt9I",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"price\": 25.02\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/product/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "product",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Soft-delete a product",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/product/11/soft-delete",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "product",
+                "11",
+                "soft-delete"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Hard-delete a product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/products/20012",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "products",
+                "20012"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get user's card by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJob21hbmhxdWFuMTgxMiIsInVzZXJJZCI6IjBhNDYwYWJmLTliZjktMWY1ZS04MTliLWY5NjMzNGEwMDAwMyIsInJvbGUiOiJVU0VSIiwiY2FydElkIjoiNzZkMjRlYTEtZDJiMy00MmE4LThkMjUtNzc5MDlmZWRjODZiIiwiaWF0IjoxNzcwMDE5MzUyLCJleHAiOjE3NzAxMDU3NTJ9.xRaSAOinyFDZmS_u6-T295O0-1UzQlIjAb5a0PuVs17M_-7f4kNBej4ZpZjwshIp",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/cart",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add products into user's cart",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJobXF1YW41IiwidXNlcklkIjoiMGE0NjBhYmYtOWMxZC0xZjZmLTgxOWMtMWQ2NGFiMmQwMDA3Iiwicm9sZSI6IlVTRVIiLCJjYXJ0SWQiOiIwYTQ2MGFiZi05YzFkLTFmNmYtODE5Yy0xZDY0YWIyZTAwMDgiLCJpYXQiOjE3NzAwMTk2NzcsImV4cCI6MTc3MDEwNjA3N30.JWoAI8rECKsJ6GPbsNlPiAvAkcJh2QTsrllRlvEJNvYhY3VXp-41lW4J6Td9WGKv",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"productId\": 1,\r\n    \"name\": \"Bánh Tiramisu\",\r\n    \"price\": 120.00,\r\n    \"quantity\": 5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/cart/add-product",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "cart",
+                "add-product"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Get user's orders by ID",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJuZ3V5ZW52YW5hbiIsInVzZXJJZCI6IjQ0NDQ0NDQ0LWFhYWEtYmJiYi1jY2NjLTAwMDAwMDAwMDAwMSIsInJvbGUiOiJVU0VSIiwiY2FydElkIjoiNzc3Nzc3NzctYWFhYS1iYmJiLWNjY2MtMDAwMDAwMDAwMDAxIiwiaWF0IjoxNzcwMDAwOTQ3LCJleHAiOjE3NzAwODczNDd9.O6J3u1haaIuyKTJuoIPWWEOPFnbJndhMXdvtMoun6k1Xb7uVFksjFYONi-yLGMil",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"paymentMethod\": \"CASH\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/order/my-list",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order",
+                "my-list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get specific user's orders by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJuZ3V5ZW52YW5hbiIsInVzZXJJZCI6IjQ0NDQ0NDQ0LWFhYWEtYmJiYi1jY2NjLTAwMDAwMDAwMDAwMSIsInJvbGUiOiJVU0VSIiwiY2FydElkIjoiNzc3Nzc3NzctYWFhYS1iYmJiLWNjY2MtMDAwMDAwMDAwMDAxIiwiaWF0IjoxNzcwMDAwOTQ3LCJleHAiOjE3NzAwODczNDd9.O6J3u1haaIuyKTJuoIPWWEOPFnbJndhMXdvtMoun6k1Xb7uVFksjFYONi-yLGMil",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/order/my-list/0A460ABF-9C09-1EE9-819C-09311C280001",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order",
+                "my-list",
+                "0A460ABF-9C09-1EE9-819C-09311C280001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all users' orders (ADMIN/CHEF)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ2b3RoaWhvYSIsInVzZXJJZCI6IjU1NTU1NTU1LWFhYWEtYmJiYi1jY2NjLTAwMDAwMDAwMDAwMSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc3MDAwNDI1NywiZXhwIjoxNzcwMDkwNjU3fQ.BiuGTMVm5zBXmPmV5b-39wMKPkiSnyI5D7gBWuLzcuaQ9XnLUp9RpbAlwPiz_dB8",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/order/all",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order",
+                "all"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create an order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJobXF1YW41IiwidXNlcklkIjoiMGE0NjBhYmYtOWMxZC0xZjZmLTgxOWMtMWQ2NGFiMmQwMDA3Iiwicm9sZSI6IlVTRVIiLCJjYXJ0SWQiOiIwYTQ2MGFiZi05YzFkLTFmNmYtODE5Yy0xZDY0YWIyZTAwMDgiLCJpYXQiOjE3NzAwMTk2NzcsImV4cCI6MTc3MDEwNjA3N30.JWoAI8rECKsJ6GPbsNlPiAvAkcJh2QTsrllRlvEJNvYhY3VXp-41lW4J6Td9WGKv",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"paymentMethod\": \"CASH\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/order/submit",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order",
+                "submit"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Brand",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

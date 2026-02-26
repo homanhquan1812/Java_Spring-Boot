@@ -2,8 +2,8 @@ package org.homanhquan.productservice.config;
 
 import lombok.RequiredArgsConstructor;
 import org.homanhquan.productservice.exception.CustomAuthenticationEntryPoint;
-import org.homanhquan.productservice.security.JwtAuthenticationFilter;
-import org.homanhquan.productservice.security.RateLimitFilter;
+import org.homanhquan.productservice.security.jwt.JwtAuthenticationFilter;
+import org.homanhquan.productservice.security.rateLimitFilter.RateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -125,7 +125,9 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register/**").permitAll()
+                        .requestMatchers("/api/brand/**").permitAll()
                         .requestMatchers("/auth/logout").authenticated()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         // PRODUCT
                         .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()

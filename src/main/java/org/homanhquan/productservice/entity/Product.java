@@ -29,7 +29,7 @@ import java.util.UUID;
  * that defines the mapping between Java entities and database tables and columns.
  * During runtime:
  * - If a repository method is invoked, Spring Data JPA delegates the call to the EntityManager.
- *   EntityManager, whose implementation is provided by Hibernate, translates the operation into SQL.
+ *   EntityManager ìnterface, whose implementation is provided by Hibernate, translates the operation into SQL.
  * - Hibernate executes the SQL via JDBC, a Low-level API responsible for database communication.
  * - Database rows are mapped back to entity objects and stored in the Persistence Context (first-level cache) in the JVM heap.
  * - Returned objects are serialized into JSON by Jackson and sent as the HTTP response.
@@ -77,8 +77,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 public class Product extends FullAuditable {
 
     /**
@@ -161,6 +159,19 @@ public class Product extends FullAuditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
+
+    public static Product of(String name, String description, Status status, BigDecimal price, LocalDateTime deletedAt, UUID deletedBy) {
+        Product product = new Product();
+
+        product.name = name;
+        product.description = description;
+        product.status = status;
+        product.price = price;
+        product.deletedAt = deletedAt;
+        product.deletedBy = deletedBy;
+
+        return product;
+    }
 
     public void softDelete(UUID userId) {
         this.status = Status.SUSPENDED;

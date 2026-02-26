@@ -1,6 +1,6 @@
 package org.homanhquan.productservice.config;
 
-import org.homanhquan.productservice.security.SpringSecurityAuditorAware;
+import org.homanhquan.productservice.security.audit.SpringSecurityAuditorAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

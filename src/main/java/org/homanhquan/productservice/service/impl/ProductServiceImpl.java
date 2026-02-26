@@ -5,18 +5,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.homanhquan.productservice.dto.common.PageResponse;
 import org.homanhquan.productservice.dto.product.request.CreateProductRequest;
 import org.homanhquan.productservice.dto.product.request.UpdateProductRequest;
-import org.homanhquan.productservice.dto.product.request.UpdateProductStatusRequest;
 import org.homanhquan.productservice.dto.product.response.ProductResponse;
 import org.homanhquan.productservice.entity.Product;
 import org.homanhquan.productservice.enums.Status;
+import org.homanhquan.productservice.exception.ResourceNotFoundException;
 import org.homanhquan.productservice.mapper.ProductMapper;
+import org.homanhquan.productservice.repository.BrandRepository;
 import org.homanhquan.productservice.repository.ProductRepository;
 import org.homanhquan.productservice.service.ProductService;
-import org.homanhquan.productservice.service.helper.product.ProductServiceImplHelper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,56 +53,59 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final ProductServiceImplHelper orderHelper;
+    private final BrandRepository brandRepository;
 
-    /**
-     * Retrieves all products with their brand names.
-     * @return List of ProductResponse.
-     */
+    private Product findProductById(Long productId){
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+    }
+
     @Override
     @Cacheable(value = "allProducts", key = "'all'")
-    public List<ProductResponse> getAllProducts() {
+    public List<ProductResponse> getAll() {
         return productMapper.projectionToDtoList(
                 productRepository.findAllProductsWithBrandName()
         );
     }
 
-    /**
-     * Retrieves a paginated list of products with their brand names.
-     * @param pageable pagination and sorting parameters.
-     * @return PageResponse of ProductResponse.
-     */
     @Override
-    public PageResponse<ProductResponse> getProductsPage(Pageable pageable) {
-        Page<ProductResponse> page = productRepository
+    public PageResponse<ProductResponse> getPage(Pageable pageable) {
+        return PageResponse.from(productRepository
                 .findProductsPageWithBrandName(pageable)
-                .map(productMapper::projectionToDto);
-
-        return PageResponse.from(page);
+                .map(productMapper::projectionToDto)
+        );
     }
 
-    /**
-     * Retrieves a product with its brand name by ID.
-     */
     @Override
     @Cacheable(value = "productById", key = "#productId")
-    public ProductResponse getProductById(Long productId) {
+    public ProductResponse getById(Long productId) {
         return productMapper.projectionToDto(
-                orderHelper.findProductProjectionById(productId)
+                productRepository.findProductByIdWithBrandName(productId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId))
         );
     }
 
     /**
-     * Creates a new product.
+     * Flow:
+     * 1. Map request to Entity.
+     * 2. Set status & brand ID for new product.
+     * 3. Save the new product and return response.
+     *
+     * @param userId
+     * @param request
+     * @return
      */
     @Override
     @CacheEvict(value = "allProducts", allEntries = true)
     @Transactional
-    public ProductResponse createProduct(UUID userId, CreateProductRequest request) {
+    public ProductResponse create(UUID userId, CreateProductRequest request) {
         Product product = productMapper.toEntity(request);
 
         product.setStatus(Status.ACTIVE);
-        product.setBrand(orderHelper.findBrandById(request.brandId()));
+        product.setBrand(
+                brandRepository.findById(request.brandId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Brand not found with id: " + request.brandId()))
+        );
 
         Product savedProduct = productRepository.save(product);
 
@@ -116,7 +118,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * Updates an existing product.
+     * Flow:
+     * 1. Find the product by its ID.
+     * 2. Map updated fields from request to entity.
+     * 3. Save the updated product and return response.
+     *
+     * @param userId
+     * @param productId
+     * @param request
+     * @return
      */
     @Override
     @Caching(evict = {
@@ -124,8 +134,8 @@ public class ProductServiceImpl implements ProductService {
             @CacheEvict(value = "allProducts", allEntries = true)
     })
     @Transactional
-    public ProductResponse updateProduct(UUID userId, Long productId, UpdateProductRequest request) {
-        Product existingProduct = orderHelper.findProductById(productId);
+    public ProductResponse update(UUID userId, Long productId, UpdateProductRequest request) {
+        Product existingProduct = findProductById(productId);
 
         productMapper.updateEntityFromDto(request, existingProduct);
 
@@ -140,7 +150,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * Soft-deletes an existing product by updating its status.
+     * Flow:
+     * 1. Find the product by its ID.
+     * 2. Soft-delete: Set status to SUSPENDED and record deletedBy/deletedAt.
+     * 3. Save the updated product and return response.
+     *
+     * @param userId
+     * @param productId
+     * @return
      */
     @Override
     @Caching(evict = {
@@ -148,10 +165,8 @@ public class ProductServiceImpl implements ProductService {
             @CacheEvict(value = "allProducts", allEntries = true)
     })
     @Transactional
-    public ProductResponse updateProductStatus(UUID userId, Long productId, UpdateProductStatusRequest request) {
-        Product existingProduct = orderHelper.findProductById(productId);
-
-        productMapper.updateStatusFromDto(request, existingProduct);
+    public ProductResponse updateStatus(UUID userId, Long productId) {
+        Product existingProduct = findProductById(productId);
 
         existingProduct.softDelete(userId);
 
@@ -166,22 +181,19 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toDto(savedProduct);
     }
 
-    /**
-     * Hard-deletes an existing product.
-     */
     @Override
     @Caching(evict = {
             @CacheEvict(value = "productById", key = "#productId"),
             @CacheEvict(value = "allProducts", allEntries = true)
     })
     @Transactional
-    public void deleteProduct(UUID userId, Long productId) {
+    public void delete(UUID userId, Long productId) {
         log.warn("WARNING: User {} is deleting product {}!",
                 userId,
                 productId
         );
 
-        productRepository.delete(orderHelper.findProductById(productId));
+        productRepository.delete(findProductById(productId));
 
         log.info("Product deleted: id={}", productId);
     }
