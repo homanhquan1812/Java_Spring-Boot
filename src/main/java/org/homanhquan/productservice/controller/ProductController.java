@@ -37,16 +37,7 @@ import static org.homanhquan.productservice.common.constants.ProductSortConstant
 
 /**
  * Annotation definition:
- * - @Tag: Groups related API endpoints in Swagger documentation.
- * - @RequiredArgsConstructor: Automatically injects dependencies for constructor.
  * - @Validated: Enables validation of method parameters (e.g., @Min, @Max) at the controller level.
- * - @Controller: A bean for the web layer (MVC) to return views (like JSP, Thymeleaf templates).
- * - @RestController: A specialized @Controller that combines @Controller and @ResponseBody, automatically serializing return values to JSON/XML for REST APIs.
- * - @Controller: A bean for the web layer (MVC) to return views (like JSP, Thymeleaf templates).
- * - @RequestMapping("/api"): Defines base URL starting with /api.
- * - @PathVariable: Extract path variables.
- * - @RequestBody: Convert JSON to object.
- * - @RequestParam: Extract query parameters.
  * - ResponseEntity<T>: Represents HTTP response with body, status, and headers. No need to use it when:
  *   + The HTTP status is fixed (e.g. 200 OK, 201 CREATED).
  *   + No custom HTTP headers are required.
@@ -57,6 +48,8 @@ import static org.homanhquan.productservice.common.constants.ProductSortConstant
  *   Then extract fields as needed, for example:
  *   + UUID userId = userDetails.getId();
  *   + String username = userDetails.getUsername();
+ *
+ *   
  *   In most cases, using @AuthenticationPrincipal(expression = "id") is sufficient.
  * - @Deprecated(since = "1.0", forRemoval = true): This method will be removed in the future since version 1.0.
  * ==================================================
